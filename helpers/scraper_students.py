@@ -59,8 +59,8 @@ def main():
         for ziak in ziaciMenaFin:
             
             novyZiak = Students(
-                studentName = ziak[0],
-                studentSurname = ziak[1],
+                studentName = ziak[1],
+                studentSurname = ziak[0],
                 studentDateOfBirth = gen.generateDateOfBirth(trieda.classStart),
                 studentStart = trieda.classStart,
                 studentAdress = gen.generateStreet(),
