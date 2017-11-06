@@ -35,6 +35,18 @@ def main():
             className = class_name
             classRoom = str(random.choice(vyber)) + str(random.randint(1,130))
         )
+        trieda.profs.append(triedny)
+
+        #generovanie ziakov
+        ziaci_mena  = soup.find_all('ol', {'class':'special'})[1].find_all('li')
+        ziaciMenaFin = []
+        for ziak in ziaci_mena:
+            ziaciMenaFin.append(ziak.span.text.split())
+        
+        for ziak in ziaciMenaFin:
+            novyZiak = Students(
+
+            )
 
 if __name__ == '__main__':
     main()

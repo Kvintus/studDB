@@ -77,8 +77,9 @@ class Students(db.Model):
 class Class(db.Model):
     __tablename__ = 'Classes'
     classID = db.Column(db.Integer, primary_key=True)
-    className = db.Column(db.String(20))
+    classLetter = db.Column(db.String(2))
     classRoom = db.Column(db.String(20))
+    classStart = db.Column(db.Integer, nullable = False)
     
     #Relationships
     profRel = db.relationship('Professor', secondary=relClassProf, backref=db.backref('classes', lazy='dynamic'))
