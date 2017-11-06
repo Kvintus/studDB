@@ -29,11 +29,15 @@ def main():
         class_name = soup.find('div', {'class':'middle'}).h1.text.strip().split()[1]
         ucitel = soup.find('ol', {'class':'special'}).li.text.strip().split()
 
+        print(ucitel)
+
         #vytvorenie triedy
-        if len(ucitel) == 3:
+        if len(ucitel) >= 3:
             triedny = Professor.query.filter_by(profSurname= ucitel[1], profName = ucitel[2]).first()
         else:
             triedny = Professor.query.filter_by(profSurname = ucitel[0], profName = ucitel[1]).first()
+
+        print(triedny.profSurname)
 
         vyber = ['L', 'P']
        
@@ -44,8 +48,6 @@ def main():
         )
         trieda.profs.append(triedny)
         db.session.add(trieda)
-
-        print(triedny.profSurname)
 
         #generovanie ziakov
         ziaci_mena  = soup.find_all('ol', {'class':'special'})[1].find_all('li')
