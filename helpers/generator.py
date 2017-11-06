@@ -14,4 +14,5 @@ class Generator():
     def generatePhoneNumber(self):
         return '+421 ' + str(random.randint(100, 999)) + ' ' + str(random.randint(100, 999)) + ' ' + str(random.randint(100, 999))
 
-        
+    def generateDateOfBirth(self ,start):
+        return "{}.{}.{}".format(random.randint(1,31), random.randint(1,12), random.randint(start - 16, start - 15))

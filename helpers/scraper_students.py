@@ -5,8 +5,6 @@ import os
 import requests
 import random
 
-#Kvoli tomu ze je o folder vyssie
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlClasses import *
 
 gen = Generator()
@@ -22,6 +20,9 @@ def getClassLinks():
     return linky
 
 def main():
+    links = getClassLinks()
+    links.pop(len(links)-1)
+    links.pop(len(links)-1)
     for link in getClassLinks():
         html_page = requests.get(link)
         soup = BeautifulSoup(html_page.content, 'lxml')
@@ -29,13 +30,22 @@ def main():
         ucitel = soup.find('ol', {'class':'special'}).li.text.strip().split()
 
         #vytvorenie triedy
-        triedny = Professor.query.filter_by(and_(profName = ucitel[0], profSurname = ucitel[1])).first()
+        if len(ucitel) == 3:
+            triedny = Professor.query.filter_by(profSurname= ucitel[1], profName = ucitel[2]).first()
+        else:
+            triedny = Professor.query.filter_by(profSurname = ucitel[0], profName = ucitel[1]).first()
+
         vyber = ['L', 'P']
+       
         trieda = Class(
-            className = class_name
-            classRoom = str(random.choice(vyber)) + str(random.randint(1,130))
+            classLetter = class_name[-1:],
+            classRoom = str(random.choice(vyber)) + str(random.randint(1,130)),
+            classStart = int(link[-5:-1])
         )
         trieda.profs.append(triedny)
+        db.session.add(trieda)
+
+        print(triedny.profSurname)
 
         #generovanie ziakov
         ziaci_mena  = soup.find_all('ol', {'class':'special'})[1].find_all('li')
@@ -43,10 +53,22 @@ def main():
         for ziak in ziaci_mena:
             ziaciMenaFin.append(ziak.span.text.split())
         
+        
         for ziak in ziaciMenaFin:
+            
             novyZiak = Students(
-
+                studentName = ziak[0],
+                studentSurname = ziak[1],
+                studentDateOfBirth = gen.generateDateOfBirth(trieda.classStart),
+                studentStart = trieda.classStart,
+                studentAdress = gen.generateStreet(),
+                studentEmail = "{}.{}@gymzv.sk".format(ziak[0], ziak[1]),
+                studentPhone = gen.generatePhoneNumber()
             )
+
+            novyZiak.classes.append(trieda)
+            db.session.add(novyZiak)
+        db.session.commit()
 
 if __name__ == '__main__':
     main()

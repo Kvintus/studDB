@@ -4,8 +4,6 @@ import sys
 import os
 import requests
 
-#Kvoli tomu ze je o folder vyssie
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlClasses import *
 
 gen = Generator()
@@ -25,13 +23,13 @@ for ucitel in ucitalia:
     prof_name = ""
     prof_surname = ""
 
-    if len(nameAndOthers) == 3:
+    if len(nameAndOthers) > 2:
         prof_title = nameAndOthers[0].strip()
-        prof_name = nameAndOthers[1].strip()
-        prof_surname = nameAndOthers[2].strip()
-    else:
-        prof_name = nameAndOthers[0].strip()
+        prof_name = nameAndOthers[2].strip()
         prof_surname = nameAndOthers[1].strip()
+    else:
+        prof_name = nameAndOthers[1].strip()
+        prof_surname = nameAndOthers[0].strip()
 
     prof_loc = zaznamy[2].text.strip()
     prof_email = zaznamy[4].a.text.strip()

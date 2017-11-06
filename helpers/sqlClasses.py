@@ -65,7 +65,7 @@ class Students(db.Model):
     studentName = db.Column(db.String(50),nullable=False)
     studentSurname = db.Column(db.String(50), nullable=False)
     studentDateOfBirth = db.Column(db.String(12), nullable=False)
-    studentStart = db.Column(db.String(12), nullable=False)
+    studentStart = db.Column(db.Integer , nullable=False)
     studentAdress = db.Column(db.String(80))
     studentEmail = db.Column(db.String(80))
     studentPhone = db.Column(db.String(20))
