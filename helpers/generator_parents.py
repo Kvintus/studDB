@@ -26,24 +26,24 @@ def main():
         zena = Parent(
             parentName = zena_meno,
             parentSurname = surname + "ová",
-            parentEmail = "{}.{}@gmail.com".format(surname + "ová", zena_meno),
+            parentEmail = "{}.{}@gmail.com".format(surname.lower() + "ová", zena_meno.lower()),
             parentPhone = gen.generatePhoneNumber(),
             parentAdress = gen.generateStreet()
         )
         db.session.add(zena)
         # vyrvorit muza
-        muz_meno = gen.generateZena()
+        muz_meno = gen.generateMuz()
         muz = Parent(
             parentName = muz_meno,
             parentSurname = surname,
-            parentEmail = "{}.{}@gmail.com".format(surname, muz_meno),
+            parentEmail = "{}.{}@gmail.com".format(surname.lower(), muz_meno.lower()),
             parentPhone = gen.generatePhoneNumber(),
             parentAdress = gen.generateStreet()
         )
         db.session.add(muz)
 
         for student in Students.query.all():
-            if surname in student.studentName:
+            if surname in student.studentSurname:
                 student.parents.append(zena)
                 student.parents.append(muz)
     
