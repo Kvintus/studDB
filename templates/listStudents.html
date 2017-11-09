@@ -1,0 +1,47 @@
+{% extends "main_template.html" %} {% block content %}
+<table id="tabulka" class="table sticky-header">
+    <thead class="table-header">
+        <tr>
+            <th>
+                <div>
+                    <input class="table-header" type="text" placeholder="#">
+                </div>
+            </th>
+            <th>
+                <div>
+                    <input id="inputMeno" onkeyup="menaFilter()"  class="table-header" type="text" placeholder="Meno">
+                </div>
+            </th>
+
+            <th>
+                <div>
+                    <input id="inputPriezv" onkeyup="priezvFilter()"  class="table-header" type="text" placeholder="Priezvisko">
+                </div>
+            </th>
+            <th>
+                <div>
+                    <input class="table-header" type="text" placeholder="Email">
+                </div>
+            </th>
+            <th>
+                <div>
+                    <input class="table-header" type="text" placeholder="Telefon">
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in ala %}
+        <tr>
+            <td> {{ student.studentID }} </td>
+            <td> {{ student.studentName }}</td>
+            <td> {{ student.studentSurname }} </td>
+            <td> {{ student.studentEmail }} </td>
+            <td> {{ student.studentPhone }} </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script src="{{url_for('static',filename='js/filter.js')}}"></script>
+<script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.15')}}"></script>
+{% endblock %}

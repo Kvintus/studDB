@@ -1,3 +1,27 @@
-body{
-    padding-top: 4.5rem;
+body {
+    padding-top: 3.1rem;
+}
+
+.bg-moj {
+    background-color: #385777;
+}
+
+.table-header {
+    border: 0;
+    padding-top: 10px;
+    background-color: white;
+    border-bottom: 1.5px solid darkgray;
+}
+
+.table-header:focus{
+    border-color: rgb(112, 112, 112);
+    outline: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+table.floatThead-table {
+    border-top: none;
+    border-bottom: none;
+    background-color: #fff;
 }
