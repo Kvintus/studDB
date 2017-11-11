@@ -1,36 +1,34 @@
-function menaFilter() {
-    var input, filter, table, tr, td, i;
-    input = document.getElementById("inputMeno");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("tabulka");
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[1];
-        if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+var nameFilter = '';
+var surnameFilter = '';
+
+function mainFilter() {
+    var td;
+    var table = document.getElementById('tabulka');
+    tr = table.getElementsByTagName('tr');
+
+    for (var i = 0; i < tr.length; i++) {
+        nameCol = tr[i].getElementsByTagName('td')[1];
+        surnameCol = tr[i].getElementsByTagName('td')[2];
+
+        //Checks if both column are populted
+        if (nameCol && surnameCol){
+            if (nameCol.innerHTML.toUpperCase().indexOf(nameFilter) > -1 && surnameCol.innerHTML.toUpperCase().indexOf(surnameFilter) > -1 ) {
                 tr[i].style.display = "";
-            } else {
+            }
+            else {
                 tr[i].style.display = "none";
             }
         }
     }
 }
 
+function menaFilter() {
+    nameFilter = document.getElementById('inputName').value.toUpperCase();
+    mainFilter();
+}
+
+
 function priezvFilter() {
-    var input, filter, table, tr, td, i;
-    input = document.getElementById("inputPriezv");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("tabulka");
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[2];
-        if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                console.log(td.innerHTML.toUpperCase().indexOf(filter))
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-    }
+    surnameFilter = document.getElementById('inputSurname').value.toUpperCase();
+    mainFilter();
 }

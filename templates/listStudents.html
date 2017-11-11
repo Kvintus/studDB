@@ -9,13 +9,13 @@
             </th>
             <th>
                 <div>
-                    <input id="inputMeno" onkeyup="menaFilter()"  class="table-header" type="text" placeholder="Meno">
+                    <input id="inputName" onkeyup="menaFilter()"  class="table-header" type="text" placeholder="Meno">
                 </div>
             </th>
 
             <th>
                 <div>
-                    <input id="inputPriezv" onkeyup="priezvFilter()"  class="table-header" type="text" placeholder="Priezvisko">
+                    <input id="inputSurname" onkeyup="priezvFilter()"  class="table-header" type="text" placeholder="Priezvisko">
                 </div>
             </th>
             <th>
@@ -42,6 +42,10 @@
         {% endfor %}
     </tbody>
 </table>
-<script src="{{url_for('static',filename='js/filter.js')}}"></script>
-<script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.15')}}"></script>
+
+<!-- My filter script -->
+<script src="{{url_for('static',filename='js/filter.js', v='0.032')}}"></script>
+
+<!-- The sticky header script -->
+<script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.3')}}"></script>
 {% endblock %}
