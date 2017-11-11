@@ -19,6 +19,7 @@ function mainFilter() {
             }
         }
     }
+    window.scrollTo(0,0);
 }
 
 function filterByID() {
@@ -32,7 +33,7 @@ function filterByID() {
 
         //Checks if both column are populted
         if (id_Col) {
-            if (id_Col.innerHTML.toUpperCase().indexOf(filterID) > -1) {
+            if (id_Col.innerHTML.toUpperCase() == filterID || filterID == "") {
                 tr[i].style.display = "";
             } else {
                 tr[i].style.display = "none";

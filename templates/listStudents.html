@@ -20,12 +20,12 @@
             </th>
             <th>
                 <div>
-                    <input class="table-header" type="text" placeholder="Email">
+                    <input class="table-header dis" type="text" placeholder="Email" disabled>
                 </div>
             </th>
             <th>
                 <div>
-                    <input class="table-header" type="text" placeholder="Telefon">
+                    <input class="table-header dis" type="text" placeholder="Telefon" disabled>
                 </div>
             </th>
         </tr>
@@ -33,18 +33,18 @@
     <tbody>
         {% for student in ala %}
         <tr>
-            <td> {{ student.studentID }} </td>
-            <td> {{ student.studentName }}</td>
-            <td> {{ student.studentSurname }} </td>
-            <td> {{ student.studentEmail }} </td>
-            <td> {{ student.studentPhone }} </td>
+            <td>{{ student.studentID }}</td>
+            <td>{{ student.studentName }}</td>
+            <td>{{ student.studentSurname }}</td>
+            <td>{{ student.studentEmail }}</td>
+            <td>{{ student.studentPhone }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
 <!-- My filter script -->
-<script src="{{url_for('static',filename='js/filter.js', v='0.035')}}"></script>
+<script src="{{url_for('static',filename='js/filter.js', v='0.04')}}"></script>
 
 <!-- The sticky header script -->
 <script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.3')}}"></script>

@@ -10,11 +10,15 @@ body {
     border: 0;
     padding-top: 10px;
     background-color: white;
-    border-bottom: 1.5px solid darkgray;
+    border-bottom: 1.5px solid rgb(155, 154, 154);
+}
+
+.dis {
+    border-bottom: 1.5px solid rgb(201, 201, 201);
 }
 
 .table-header:focus{
-    border-color: rgb(112, 112, 112);
+    border-color: rgb(102, 102, 102);
     outline: 0;
     -webkit-box-shadow: none;
     box-shadow: none;
