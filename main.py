@@ -8,7 +8,7 @@ db.init_app(app)
 
 @app.route('/api')
 def api():
-    s = Students.query.order_by(Students.studentName).all()
+    s = Students.query.order_by(Students.studentID).all()
     order = request.args.get('order')
     mainResponse = []
 
