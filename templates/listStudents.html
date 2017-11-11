@@ -4,7 +4,7 @@
         <tr>
             <th>
                 <div>
-                    <input class="table-header" type="text" placeholder="#">
+                    <input id="inputID" onkeyup="filterByID()" class="table-header" type="text" placeholder="#">
                 </div>
             </th>
             <th>
@@ -44,7 +44,7 @@
 </table>
 
 <!-- My filter script -->
-<script src="{{url_for('static',filename='js/filter.js', v='0.032')}}"></script>
+<script src="{{url_for('static',filename='js/filter.js', v='0.035')}}"></script>
 
 <!-- The sticky header script -->
 <script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.3')}}"></script>

@@ -11,24 +11,50 @@ function mainFilter() {
         surnameCol = tr[i].getElementsByTagName('td')[2];
 
         //Checks if both column are populted
-        if (nameCol && surnameCol){
-            if (nameCol.innerHTML.toUpperCase().indexOf(nameFilter) > -1 && surnameCol.innerHTML.toUpperCase().indexOf(surnameFilter) > -1 ) {
+        if (nameCol && surnameCol) {
+            if (nameCol.innerHTML.toUpperCase().indexOf(nameFilter) > -1 && surnameCol.innerHTML.toUpperCase().indexOf(surnameFilter) > -1) {
                 tr[i].style.display = "";
-            }
-            else {
+            } else {
                 tr[i].style.display = "none";
             }
         }
     }
 }
 
+function filterByID() {
+    var td;
+    var table = document.getElementById('tabulka');
+    filterID = document.getElementById('inputID').value.toUpperCase();
+    tr = table.getElementsByTagName('tr');
+
+    for (var i = 0; i < tr.length; i++) {
+        id_Col = tr[i].getElementsByTagName('td')[0];
+
+        //Checks if both column are populted
+        if (id_Col) {
+            if (id_Col.innerHTML.toUpperCase().indexOf(filterID) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+
+function deleteIDFilter() {
+    document.getElementById('inputID').value = "";
+}
+
 function menaFilter() {
     nameFilter = document.getElementById('inputName').value.toUpperCase();
+    deleteIDFilter();
     mainFilter();
 }
 
 
 function priezvFilter() {
     surnameFilter = document.getElementById('inputSurname').value.toUpperCase();
+    deleteIDFilter();
     mainFilter();
 }
+
