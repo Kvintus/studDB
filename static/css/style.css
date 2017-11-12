@@ -42,4 +42,5 @@ table>thead>tr>th {
 table>thead>tr>th>div {
     text-align: center;
     display: inline-block;
+    height: auto;
 }
