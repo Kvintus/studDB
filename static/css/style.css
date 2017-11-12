@@ -29,3 +29,17 @@ table.floatThead-table {
     border-bottom: none;
     background-color: #fff;
 }
+
+.sipka, .placeholderDiv {
+    filter: opacity(60%);
+    display: inline-block;    
+    width: 20px;
+}
+table>thead>tr>th {
+    text-align: left;
+}
+
+table>thead>tr>th>div {
+    text-align: center;
+    display: inline-block;
+}

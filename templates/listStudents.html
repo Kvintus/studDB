@@ -4,28 +4,33 @@
         <tr>
             <th>
                 <div>
-                    <input id="inputID" onkeyup="filterByID()" class="table-header" type="text" placeholder="#">
+                    <input class="table-header" type="text" placeholder="#">
+                    <img onclick="switchB(this)" data-filterID="0" class="sipka" src="{{ url_for('static', filename='images/icons/desc.png') }}" alt="" srcset="">
                 </div>
             </th>
             <th>
                 <div>
-                    <input id="inputName" onkeyup="menaFilter()"  class="table-header" type="text" placeholder="Meno">
+                    <input id="inputMeno" onkeyup="menaFilter()"  class="table-header" type="text" placeholder="Meno">
+                    <img onclick="switchB(this)" data-filterID="1" class="sipka" src="{{ url_for('static', filename='images/icons/no.png') }}" alt="" srcset="">
                 </div>
             </th>
 
             <th>
                 <div>
-                    <input id="inputSurname" onkeyup="priezvFilter()"  class="table-header" type="text" placeholder="Priezvisko">
+                    <input id="inputPriezv" onkeyup="priezvFilter()"  class="table-header" type="text" placeholder="Priezvisko">
+                    <img onclick="switchB(this)"data-filterID="3" class="sipka" src="{{ url_for('static', filename='images/icons/no.png') }}" alt="" srcset="">
                 </div>
             </th>
             <th>
                 <div>
-                    <input class="table-header dis" type="text" placeholder="Email" disabled>
+                    <input class="table-header" type="text" placeholder="Email">
+                    <div class="placeholderDiv"></div>
                 </div>
             </th>
             <th>
                 <div>
-                    <input class="table-header dis" type="text" placeholder="Telefon" disabled>
+                    <input class="table-header" type="text" placeholder="Telefon">
+                    <div class="placeholderDiv"></div>
                 </div>
             </th>
         </tr>
@@ -42,10 +47,24 @@
         {% endfor %}
     </tbody>
 </table>
-
-<!-- My filter script -->
-<script src="{{url_for('static',filename='js/filter.js', v='0.04')}}"></script>
-
-<!-- The sticky header script -->
-<script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.3')}}"></script>
+<script>
+    var current = 'asc';
+    function switchB(event) {
+        if (current === 'asc') {
+            current = 'desc';
+            event.srcElement.src = "{{ url_for('static', filename='images/icons/asc.png') }}";
+            console.log(event.srcElement.getAttribute('data-moja'));
+        }
+        else if (current === 'desc') {
+            current = 'asc';
+            event.srcElement.src = "{{ url_for('static', filename='images/icons/desc.png') }}";
+        }
+    }
+    function greet() {
+        console.log('Hello my friend :D');
+    }
+    
+</script>
+<script src="{{url_for('static',filename='js/filter.js')}}"></script>
+<script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.15')}}"></script>
 {% endblock %}
