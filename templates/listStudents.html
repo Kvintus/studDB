@@ -2,23 +2,26 @@
 <table id="tabulka" class="table sticky-header">
     <thead class="table-header">
         <tr>
-            <th>
+            <th data-tsorter="numeric">
                 <div>
                     <input id="inputID" onkeyup="filterByID()" class="table-header" type="text" placeholder="#">
-                    <img onclick="switchB(this)" data-sorterID="0" class="sipka sorter" src="{{ url_for('static', filename='images/icons/desc.png') }}" alt="" srcset="">
+                    <img onclick="switchB(this)" data-sorterID="0" class="sipka sorter" src="{{ url_for('static', filename='images/icons/desc.png') }}"
+                        alt="" srcset="">
                 </div>
             </th>
             <th>
                 <div>
-                    <input id="inputName" onkeyup="menaFilter()"  class="table-header" type="text" placeholder="Meno">
-                    <img onclick="switchB(this)" data-sorterID="1" class="sipka sorter" src="{{ url_for('static', filename='images/icons/no.png') }}" alt="" srcset="">
+                    <input id="inputName" onkeyup="menaFilter()" class="table-header" type="text" placeholder="Meno">
+                    <img onclick="switchB(this)" data-sorterID="1" class="sipka sorter" src="{{ url_for('static', filename='images/icons/no.png') }}"
+                        alt="" srcset="">
                 </div>
             </th>
 
             <th>
                 <div>
-                    <input id="inputSurname" onkeyup="priezvFilter()"  class="table-header" type="text" placeholder="Priezvisko">
-                    <img onclick="switchB(this)" data-sorterID="2" class="sipka sorter" src="{{ url_for('static', filename='images/icons/no.png') }}" alt="" srcset="">
+                    <input id="inputSurname" onkeyup="priezvFilter()" class="table-header" type="text" placeholder="Priezvisko">
+                    <img onclick="switchB(this)" data-sorterID="2" class="sipka sorter" src="{{ url_for('static', filename='images/icons/no.png') }}"
+                        alt="" srcset="">
                 </div>
             </th>
             <th>
@@ -47,19 +50,51 @@
         {% endfor %}
     </tbody>
 </table>
+<script>
+    function quickSort(arr, left, right) {
+        var len = arr.length,
+            pivot,
+            partitionIndex;
+
+
+        if (left < right) {
+            pivot = right;
+            partitionIndex = partition(arr, pivot, left, right);
+
+            //sort left and right
+            quickSort(arr, left, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, right);
+        }
+        return arr;
+    }
+
+    function partition(arr, pivot, left, right) {
+        var pivotValue = arr[pivot],
+            partitionIndex = left;
+
+        for (var i = left; i < right; i++) {
+            if (arr[i] < pivotValue) {
+                swap(arr, i, partitionIndex);
+                partitionIndex++;
+            }
+        }
+        swap(arr, right, partitionIndex);
+        return partitionIndex;
+    }
+</script>
+<script src="{{url_for('static',filename='js/sort.js', v='0.09')}}"></script>
 
 <script>
-    function redirect(){
-        window.location.href = "http://stackoverflow.com";
-    }
+    var sorte = tsorter.create('tabulka');
+
     mainSorter = {
         ID: 0,
         order: 'desc'
     }
 
+
     function switchB(caller) {
         if (caller.getAttribute('data-sorterID') != mainSorter.ID) {
-            console.log('som tu');
             //Zmenit mainSorter
             mainSorter.ID = caller.getAttribute('data-sorterID');
             mainSorter.order = 'desc';
@@ -67,26 +102,28 @@
             //Zmenit znaky na vsetkych ostatnych
             ostatne = document.getElementsByClassName('sorter');
             console.log('ostatne len: ' + ostatne.length);
-            for (var i = 0; i < ostatne.length; i++){
+            for (var i = 0; i < ostatne.length; i++) {
                 ostatne[i].src = "{{ url_for('static', filename='images/icons/no.png') }}";
             }
 
             //Nastavit svoju ikonku
             caller.src = "{{ url_for('static', filename='images/icons/desc.png') }}";
 
-        }else {
+        } else {
             //Nerobime nic s ostatnymi
             //Zmenime mainSorter order
             if (mainSorter.order === 'asc') {
                 mainSorter.order = 'desc';
                 caller.src = "{{ url_for('static', filename='images/icons/desc.png') }}";
-            }else {
+            } else {
                 mainSorter.order = 'asc';
                 caller.src = "{{ url_for('static', filename='images/icons/asc.png') }}";
             }
         }
-    }    
+        sortTablee();
+    }
 </script>
+
 
 <script src="{{url_for('static',filename='js/filter.js')}}"></script>
 <script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.15')}}"></script>
