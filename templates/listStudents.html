@@ -50,48 +50,12 @@
         {% endfor %}
     </tbody>
 </table>
-<script>
-    function quickSort(arr, left, right) {
-        var len = arr.length,
-            pivot,
-            partitionIndex;
-
-
-        if (left < right) {
-            pivot = right;
-            partitionIndex = partition(arr, pivot, left, right);
-
-            //sort left and right
-            quickSort(arr, left, partitionIndex - 1);
-            quickSort(arr, partitionIndex + 1, right);
-        }
-        return arr;
-    }
-
-    function partition(arr, pivot, left, right) {
-        var pivotValue = arr[pivot],
-            partitionIndex = left;
-
-        for (var i = left; i < right; i++) {
-            if (arr[i] < pivotValue) {
-                swap(arr, i, partitionIndex);
-                partitionIndex++;
-            }
-        }
-        swap(arr, right, partitionIndex);
-        return partitionIndex;
-    }
-</script>
-<script src="{{url_for('static',filename='js/sort.js', v='0.09')}}"></script>
 
 <script>
-    var sorte = tsorter.create('tabulka');
-
     mainSorter = {
         ID: 0,
         order: 'desc'
     }
-
 
     function switchB(caller) {
         if (caller.getAttribute('data-sorterID') != mainSorter.ID) {
