@@ -44,16 +44,17 @@ def apiClasses():
         statusResponse = -1
         orderedStudents = []
         mainResponse = []
+        tableWithPupils = orderedClasses = db.session.query(Class, func.count(relClassStudent.c.studentID).label('total')).join(relClassStudent).group_by(Class)
 
         if orderByArg == "id":
-            orderedClasses = Class.query.order_by(Class.classID).all()
+            orderedClasses = tableWithPupils.order_by(Class.classID).all()
             statusResponse = 1
         elif orderByArg == "start":
-            orderedClasses = Class.query.order_by(Class.classStart).all()
+            orderedClasses = tableWithPupils.order_by(Class.classStart).all()
             statusResponse = 1
         elif orderByArg == "pupils":
             #Generate the table with number of pupils 
-            orderedClasses = db.session.query(Class, func.count(relClassStudent.c.studentID).label('total')).join(relClassStudent).group_by(Class).order_by('total').all()
+            orderedClasses = tableWithPupils.order_by('total').all()
             statusResponse = 1
         
         for Classe in orderedClasses:
