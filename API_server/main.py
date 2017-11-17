@@ -17,7 +17,7 @@ def apiStudents():
         orderedStudents = []
         mainResponse = []
 
-        if orderByArg == "id":
+        if orderByArg == "id" or not orderByArg:
             orderedStudents = Students.query.order_by(Students.studentID).all()
             statusResponse = 1
         elif orderByArg == "name":
@@ -46,7 +46,7 @@ def apiClasses():
         mainResponse = []
         tableWithPupils = orderedClasses = db.session.query(Class, func.count(relClassStudent.c.studentID).label('total')).join(relClassStudent).group_by(Class)
 
-        if orderByArg == "id":
+        if orderByArg == "id" or not orderByArg:
             orderedClasses = tableWithPupils.order_by(Class.classID).all()
             statusResponse = 1
         elif orderByArg == "start":
@@ -67,6 +67,58 @@ def apiClasses():
 
         return jsonify(status=statusResponse, classes=mainResponse)
 
+@app.route('/api/parents')
+def apiParents():
+    if request.method == "GET":
+        orderByArg = request.args.get('orderBy')
+        statusResponse = -1
+        orderedParents = []
+        mainResponse = []
+
+        if orderByArg == "id" or not orderByArg:
+            orderedParents = Parent.query.order_by(Parent.parentID).all()
+            statusResponse = 1
+        elif orderByArg == "name":
+            orderedParents = Parent.query.order_by(Parent.parentName).all()
+            statusResponse = 1
+        elif orderByArg == "surname":
+            orderedParents = Parent.query.order_by(Parent.parentSurname).all()
+            statusResponse = 1
+        
+        for parent in orderedParents:
+            mainResponse.append({'id': parent.parentID,
+                                    'name': parent.parentName,
+                                    'surname': parent.parentSurname
+                                    })
+        
+        return jsonify(status = statusResponse, parents = mainResponse)
+            
+ 
+@app.route('/api/professors')
+def apiProfessors():
+    if request.method == "GET":
+        orderByArg = request.args.get('orderBy')
+        statusResponse = -1
+        orderedParents = []
+        mainResponse = []
+
+        if orderByArg == "id" or not orderByArg:
+            orderedProfessors = Professor.query.order_by(Professor.profID).all()
+            statusResponse = 1
+        elif orderByArg == "name":
+            orderedProfessors = Professor.query.order_by(Professor.profName).all()
+            statusResponse = 1
+        elif orderByArg == "surname":
+            orderedProfessors = Professor.query.order_by(Professor.profSurname).all()
+            statusResponse = 1
+        
+        for professor in orderedProfessors:
+            mainResponse.append({'id': professor.profID,
+                                    'name': professor.profName,
+                                    'surname': professor.profSurname
+                                    })
+        
+    return jsonify(status = statusResponse, professors = mainResponse)
 
 
 @app.route('/')
