@@ -1,7 +1,7 @@
 from flask import Flask
 
 class CustomFlask(Flask):
-    inja_options = Flask.jinja_options.copy()
+    jinja_options = Flask.jinja_options.copy()
     jinja_options.update(dict(
         block_start_string='<%',
         block_end_string='%>',
