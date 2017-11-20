@@ -1,18 +1,18 @@
-{% extends "main_template.html" %} {% block content %}
+<% extends "main_template.html" %> <% block content %>
 <table id="tabulka" class="table sticky-header">
     <thead class="table-header">
         <tr>
             <th data-tsorter="numeric">
                 <div>
                     <input id="inputID" onkeyup="filterByID()" class="table-header" type="text" placeholder="#">
-                    <img onclick="switchB(this)" data-sorterID="0" class="sipka sorter" src="{{ url_for('static', filename='images/icons/desc.png') }}"
+                    <img onclick="switchB(this)" data-sorterID="0" class="sipka sorter" src="%% url_for('static', filename='images/icons/desc.png') %%"
                         alt="" srcset="">
                 </div>
             </th>
             <th>
                 <div>
                     <input id="inputName" onkeyup="menaFilter()" class="table-header" type="text" placeholder="Meno">
-                    <img onclick="switchB(this)" data-sorterID="1" class="sipka sorter" src="{{ url_for('static', filename='images/icons/no.png') }}"
+                    <img onclick="switchB(this)" data-sorterID="1" class="sipka sorter" src="%% url_for('static', filename='images/icons/no.png') %%"
                         alt="" srcset="">
                 </div>
             </th>
@@ -20,7 +20,7 @@
             <th>
                 <div>
                     <input id="inputSurname" onkeyup="priezvFilter()" class="table-header" type="text" placeholder="Priezvisko">
-                    <img onclick="switchB(this)" data-sorterID="2" class="sipka sorter" src="{{ url_for('static', filename='images/icons/no.png') }}"
+                    <img onclick="switchB(this)" data-sorterID="2" class="sipka sorter" src="%% url_for('static', filename='images/icons/no.png') %%"
                         alt="" srcset="">
                 </div>
             </th>
@@ -39,7 +39,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for student in ala %}
+        <% for student in ala %>
         <tr>
             <td>{{ student.studentID }}</td>
             <td>{{ student.studentName }}</td>
@@ -47,7 +47,7 @@
             <td>{{ student.studentEmail }}</td>
             <td>{{ student.studentPhone }}</td>
         </tr>
-        {% endfor %}
+        <% endfor %>
     </tbody>
 </table>
 
@@ -67,28 +67,27 @@
             ostatne = document.getElementsByClassName('sorter');
             console.log('ostatne len: ' + ostatne.length);
             for (var i = 0; i < ostatne.length; i++) {
-                ostatne[i].src = "{{ url_for('static', filename='images/icons/no.png') }}";
+                ostatne[i].src = "%% url_for('static', filename='images/icons/no.png')%%";
             }
 
             //Nastavit svoju ikonku
-            caller.src = "{{ url_for('static', filename='images/icons/desc.png') }}";
+            caller.src = "%% url_for('static', filename='images/icons/desc.png') %%";
 
         } else {
             //Nerobime nic s ostatnymi
             //Zmenime mainSorter order
             if (mainSorter.order === 'asc') {
                 mainSorter.order = 'desc';
-                caller.src = "{{ url_for('static', filename='images/icons/desc.png') }}";
+                caller.src = "%% url_for('static', filename='images/icons/desc.png') %%";
             } else {
                 mainSorter.order = 'asc';
-                caller.src = "{{ url_for('static', filename='images/icons/asc.png') }}";
+                caller.src = "%% url_for('static', filename='images/icons/asc.png') %%";
             }
         }
-        sortTable();
     }
 </script>
 
 
-<script src="{{url_for('static',filename='js/filter.js')}}"></script>
-<script src="{{url_for('static',filename='js/stickyTableHeader.js', v='0.15')}}"></script>
-{% endblock %}
+<script src="%%url_for('static',filename='js/filter.js')%%"></script>
+<script src="%%url_for('static',filename='js/stickyTableHeader.js', v='0.15')%%"></script>
+<% endblock %>
