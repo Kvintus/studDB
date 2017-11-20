@@ -37,7 +37,6 @@ html {
     /* just in case there no content*/
     padding: 20px 25px 30px;
     margin: 0 auto 25px;
-    margin-top: 50px;
     /* shadows and rounded borders */
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
@@ -49,8 +48,7 @@ html {
 
 .profile-img-card {
     height: 96px;
-    margin: 0 auto 10px;
-    display: block;
+    margin-right: 20px;
     -moz-border-radius: 50%;
     -webkit-border-radius: 50%;
     border-radius: 50%;
