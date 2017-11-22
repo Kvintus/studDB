@@ -16,6 +16,7 @@ app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
+# to login
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
