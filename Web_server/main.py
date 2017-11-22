@@ -16,6 +16,7 @@ app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
+# to login
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -28,6 +29,7 @@ def login_required(f):
 def index():
     return render_template('listStudents.html')
 
+# index 
 @app.route('/login')
 def login():
     """Log user in."""
