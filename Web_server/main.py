@@ -29,6 +29,7 @@ def login_required(f):
 def index():
     return render_template('listStudents.html')
 
+# index 
 @app.route('/login')
 def login():
     """Log user in."""
