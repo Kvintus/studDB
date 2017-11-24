@@ -1,5 +1,4 @@
 Flask
 gunicorn
 flask_sqlalchemy
-json
 bs4
