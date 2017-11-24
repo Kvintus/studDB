@@ -126,5 +126,3 @@ def index():
     s = Students.query.all()
     return render_template('listStudents.html', ala=s)
 
-
-app.run(debug=True)
