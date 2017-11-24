@@ -127,4 +127,4 @@ def index():
     return render_template('listStudents.html', ala=s)
 
 
-app.run(host='0.0.0.0', debug=True)
+app.run(debug=True)
