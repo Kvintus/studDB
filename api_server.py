@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response, Response, render_template
+from flask import Flask, request, jsonify, make_response, Response
 from sqlalchemy.sql.functions import func
 from helpers.sqlClasses import *
 import json
@@ -123,6 +123,5 @@ def apiProfessors():
 
 @app.route('/')
 def index():
-    s = Students.query.all()
-    return render_template('listStudents.html', ala=s)
+    return "Hello :D"
 
