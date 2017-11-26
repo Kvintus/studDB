@@ -13,7 +13,6 @@ db.init_app(app)
 def apiStudents():
     if request.method == 'GET':
         orderByArg = request.args.get('orderBy')
-        print(request.args)
         statusResponse = -1
         orderedStudents = []
         mainResponse = []
@@ -125,13 +124,43 @@ def apiProfessors():
             
             mainResponse.append(profR)
         
-    return jsonify(status = statusResponse, professors = mainResponse)\
+    return jsonify(status = statusResponse, professors = mainResponse)
 
 
 # Manipulating
 ##############
+@app.route('/api/students/add', methods = ['POST'])
+def addStudent():
+    """ Adds a student to a database """    
+    
+    try:
+        student =  Students()
+        reJson = request.get_json()
+        student.studentEmail = reJson['email']
+        student.studentName = reJson['name']
+        student.studentPhone = reJson['phone']
+        student.studentSurname = reJson['surname']
+        student.studentStart = reJson['start']
+        student.studentAdress = reJson['adress']
+        student.studentDateOfBirth = reJson['birth']
+        db.session.add(student)
+        db.session.commit()
+        return jsonify(succcess=True)
+    except:
+        return jsonify(success=False)
 
-
+@app.route('/api/students/remove', methods = ['POST'])
+def removeStudent():
+    """ Removes a student from a database """    
+    
+    try:
+        reJson = request.get_json()
+        student = Students.query.filter_by(studentID=reJson['id']).first()
+        db.session.delete(student)
+        db.session.commit()
+        return jsonify(succcess=True)
+    except:
+        return jsonify(success=False)
 
 @app.route('/')
 def index():
