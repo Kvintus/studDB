@@ -131,8 +131,6 @@ def apiProfessors():
 # Manipulating
 ##############
 
-@app.route('/students/add')
-
 
 
 @app.route('/')
