@@ -7,7 +7,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///assets/database.db'
 db.init_app(app)
 
-
+# Providing info 
+################
 @app.route('/api/students')
 def apiStudents():
     if request.method == 'GET':
@@ -113,12 +114,23 @@ def apiProfessors():
             statusResponse = 1
         
         for professor in orderedProfessors:
-            mainResponse.append({'id': professor.profID,
+            profR = {'id': professor.profID,
                                     'name': professor.profName,
                                     'surname': professor.profSurname
-                                    })
+                                    }
+            if len(professor.classes.all()) > 0:
+                profR['class'] = professor.classes.first().classID
+            else:
+                profR['class'] = -1
+            
+            mainResponse.append(profR)
         
-    return jsonify(status = statusResponse, professors = mainResponse)
+    return jsonify(status = statusResponse, professors = mainResponse)\
+
+
+# Manipulating
+##############
+
 
 
 @app.route('/')
