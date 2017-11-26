@@ -1,3 +1,6 @@
 
 \.vs/
 Web_server/flask_session
+\.vscode/
+
+__pycache__/
