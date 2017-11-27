@@ -208,7 +208,7 @@ def removeStudent():
         newClass = Class.query.filter_by(classID=reJson['classID'])
         student.classes[0] = newClass
     
-        db.session.commit()    
+        db.session.commit() 
         return jsonify(succcess=True)
 
     except:
