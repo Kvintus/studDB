@@ -154,7 +154,6 @@ def addStudent():
 
         # Assigning the student a class
         studentClass = Class.query.filter_by(classID=reJson['classID'])
-        
         student.classes.append(studentClass)
 
 
@@ -174,6 +173,44 @@ def removeStudent():
         db.session.delete(student)
         db.session.commit()
         return jsonify(succcess=True)
+    except:
+        return jsonify(success=False)
+
+@app.route('/api/students/update', methods = ['POST'])
+def removeStudent():
+    """ Removes a student from a database """    
+    
+    try:
+        reJson = request.get_json()
+
+        # Find the student to update
+        student = Students.query.filter_by(studentID=reJson['id']).first()
+
+        # Update
+        student.studentEmail = reJson['email']
+        student.studentName = reJson['name']
+        student.studentPhone = reJson['phone']
+        student.studentSurname = reJson['surname']
+        student.studentStart = reJson['start']
+        student.studentAdress = reJson['adress']
+        student.studentDateOfBirth = reJson['birth']
+
+        # Adding his parents
+        mother = Parent.query.filter_by(parentID=reJson['motherID'])
+        father = Parent.query.filter_by(parentID=reJson['fatherID'])
+        
+        # Mother is always first in the parents list
+        student.parents[0] = mother
+        student.parents[1] = father
+
+
+        # Assigning the student a class
+        newClass = Class.query.filter_by(classID=reJson['classID'])
+        student.classes[0] = newClass
+    
+        db.session.commit()    
+        return jsonify(succcess=True)
+
     except:
         return jsonify(success=False)
 
