@@ -44,25 +44,20 @@ def apiClasses():
         statusResponse = -1
         orderedStudents = []
         mainResponse = []
-        tableWithPupils = orderedClasses = db.session.query(Class, func.count(relClassStudent.c.studentID).label('total')).join(relClassStudent).group_by(Class)
+        allClasses = Class.query.all()
 
         if orderByArg == "id" or not orderByArg:
-            orderedClasses = tableWithPupils.order_by(Class.classID).all()
+            orderedClasses = Class.query.order_by(Class.classID).all()
             statusResponse = 1
         elif orderByArg == "start":
-            orderedClasses = tableWithPupils.order_by(Class.classStart).all()
-            statusResponse = 1
-        elif orderByArg == "pupils":
-            #Generate the table with number of pupils 
-            orderedClasses = tableWithPupils.order_by('total').all()
+            orderedClasses = Class.query.order_by(Class.classStart).all()
             statusResponse = 1
         
         for Classe in orderedClasses:
-            mainResponse.append({'id': Classe.Class.classID,
-                                 'letter': Classe.Class.classLetter,
-                                 'start': Classe.Class.classStart,
-                                 'room': Classe.Class.classRoom,
-                                 'pupils': Classe.total
+            mainResponse.append({'id': Classe.classID,
+                                 'letter': Classe.classLetter,
+                                 'start': Classe.classStart,
+                                 'room': Classe.classRoom,
                                  })
 
         return jsonify(status=statusResponse, classes=mainResponse)
@@ -126,9 +121,12 @@ def apiProfessors():
         
     return jsonify(status = statusResponse, professors = mainResponse)
 
-
+###########################################################################
 # Manipulating
-##############
+###########################################################################
+
+##                       Student manipulation                            ##
+
 @app.route('/api/students/add', methods = ['POST'])
 def addStudent():
     """ Adds a student to a database """    
@@ -145,15 +143,15 @@ def addStudent():
         student.studentDateOfBirth = reJson['birth']
 
         # Adding his parents
-        mother = Parent.query.filter_by(parentID=reJson['motherID'])
-        father = Parent.query.filter_by(parentID=reJson['fatherID'])
+        mother = Parent.query.filter_by(parentID=reJson['motherID']).first()
+        father = Parent.query.filter_by(parentID=reJson['fatherID']).first()
         
         student.parents.append(mother)
         student.parents.append(father)
 
 
         # Assigning the student a class
-        studentClass = Class.query.filter_by(classID=reJson['classID'])
+        studentClass = Class.query.filter_by(classID=reJson['classID']).first()
         student.classes.append(studentClass)
 
 
@@ -177,8 +175,8 @@ def removeStudent():
         return jsonify(success=False)
 
 @app.route('/api/students/update', methods = ['POST'])
-def removeStudent():
-    """ Removes a student from a database """    
+def updateStudent():
+    """ Updates a student in the database """    
     
     try:
         reJson = request.get_json()
@@ -196,8 +194,8 @@ def removeStudent():
         student.studentDateOfBirth = reJson['birth']
 
         # Adding his parents
-        mother = Parent.query.filter_by(parentID=reJson['motherID'])
-        father = Parent.query.filter_by(parentID=reJson['fatherID'])
+        mother = Parent.query.filter_by(parentID=reJson['motherID']).first()
+        father = Parent.query.filter_by(parentID=reJson['fatherID']).first()
         
         # Mother is always first in the parents list
         student.parents[0] = mother
@@ -205,7 +203,7 @@ def removeStudent():
 
 
         # Assigning the student a class
-        newClass = Class.query.filter_by(classID=reJson['classID'])
+        newClass = Class.query.filter_by(classID=reJson['classID']).first()
         student.classes[0] = newClass
     
         db.session.commit() 
@@ -214,7 +212,42 @@ def removeStudent():
     except:
         return jsonify(success=False)
 
+
+##                       Class manipulation                            ##
+@app.route('/api/classes/add', methods = ['POST'])
+def addClass():
+    """ Adds a class to a database """    
+    
+    try:
+        reJson = request.get_json()
+
+        newClass =  Class()
+        newClass.classLetter = reJson['classLetter']
+        newClass.classRoom = reJson['classRoom']
+        newClass.classStart = reJson['classStart']
+
+        db.session.add(newClass)
+        print('adding new class')
+        db.session.commit()
+        return jsonify(succcess=True)
+    except:
+        return jsonify(success=False)
+
+@app.route('/api/classes/remove', methods = ['POST'])
+def removeClass():
+    """ Removes a class from a database """    
+     
+    try:
+        reJson = request.get_json()
+        ourClass = Class.query.filter_by(classID=reJson['classID']).first()
+
+        db.session.delete(ourClass)
+        db.session.commit()
+        return jsonify(succcess=True)
+    except:
+        return jsonify(success=False)
+
 @app.route('/')
 def index():
-    return "Hello :D"
+    return "<h1> StudDB API </h1>"
 
