@@ -143,6 +143,21 @@ def addStudent():
         student.studentStart = reJson['start']
         student.studentAdress = reJson['adress']
         student.studentDateOfBirth = reJson['birth']
+
+        # Adding his parents
+        mother = Parent.query.filter_by(parentID=reJson['motherID'])
+        father = Parent.query.filter_by(parentID=reJson['fatherID'])
+        
+        student.parents.append(mother)
+        student.parents.append(father)
+
+
+        # Assigning the student a class
+        studentClass = Class.query.filter_by(classID=reJson['classID'])
+        
+        student.classes.append(studentClass)
+
+
         db.session.add(student)
         db.session.commit()
         return jsonify(succcess=True)
