@@ -185,26 +185,36 @@ def updateStudent():
         student = Students.query.filter_by(studentID=reJson['id']).first()
 
         # Update
-        student.studentEmail = reJson['email']
-        student.studentName = reJson['name']
-        student.studentPhone = reJson['phone']
-        student.studentSurname = reJson['surname']
-        student.studentStart = reJson['start']
-        student.studentAdress = reJson['adress']
-        student.studentDateOfBirth = reJson['birth']
+        if 'email' in reJson:
+            student.studentEmail = reJson['email']
+        if 'name' in reJson:
+            student.studentName = reJson['name']
+        if 'phone' in reJson:
+            student.studentPhone = reJson['phone']
+        if 'surname' in reJson:
+            student.studentSurname = reJson['surname']
+        if 'start' in reJson:
+            student.studentStart = reJson['start']
+        if 'adress' in reJson:
+            student.studentAdress = reJson['adress']
+        if 'birth' in reJson:
+            student.studentDateOfBirth = reJson['birth']
 
         # Adding his parents
-        mother = Parent.query.filter_by(parentID=reJson['motherID']).first()
-        father = Parent.query.filter_by(parentID=reJson['fatherID']).first()
+        if 'motherID' in reJson:
+            mother = Parent.query.filter_by(parentID=reJson['motherID']).first()
+            student.parents[0] = mother
+        if 'fatherID' in reJson:
+            father = Parent.query.filter_by(parentID=reJson['fatherID']).first()
+            student.parents[1] = father
         
-        # Mother is always first in the parents list
-        student.parents[0] = mother
-        student.parents[1] = father
+        
 
 
         # Assigning the student a class
-        newClass = Class.query.filter_by(classID=reJson['classID']).first()
-        student.classes[0] = newClass
+        if 'classID' in reJson:
+            newClass = Class.query.filter_by(classID=reJson['classID']).first()
+            student.classes[0] = newClass
     
         db.session.commit() 
         return jsonify(succcess=True)
@@ -242,6 +252,25 @@ def removeClass():
         ourClass = Class.query.filter_by(classID=reJson['classID']).first()
 
         db.session.delete(ourClass)
+        db.session.commit()
+        return jsonify(succcess=True)
+    except:
+        return jsonify(success=False)
+
+@app.route('/api/classes/add', methods = ['POST'])
+def updateClass():
+    """ Updates a class """    
+    
+    try:
+        reJson = request.get_json()
+        ourClass = Class.query.filter_by(classID=reJson['id'])
+
+        ourClass.classLetter = reJson['classLetter']
+        ourClass.classRoom = reJson['classRoom']
+        ourClass.classStart = reJson['classStart']
+
+        db.session.add(newClass)
+        print('adding new class')
         db.session.commit()
         return jsonify(succcess=True)
     except:
