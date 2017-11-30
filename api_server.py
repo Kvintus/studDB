@@ -382,10 +382,10 @@ def addProfessor():
         professor.profSurname = reJson['surname']
         professor.profAdress = reJson['adress']
 
-        if 'childrenIDs' in reJson:
-            for childrenID in reJson['childrenIDs']:
-                child = Students.query.filter_by(studentID = childrenID)
-                professor.children.append(child)
+        if 'classID' in reJson:
+            professor.classes.clear()
+            professor.classes.append(Class.query.filter_by(classID=reJson['classID']))
+        
 
         db.session.add(professor)
         db.session.commit()
@@ -393,59 +393,49 @@ def addProfessor():
     except:
         return jsonify(success=False)
 
-@app.route('/api/parents/remove', methods = ['POST'])
-def removeParent():
-    """ Removes a parent from a database """    
+@app.route('/api/professors/remove', methods = ['POST'])
+def removeProfessor():
+    """ Removes a professor from a database """    
     
     try:
         reJson = request.get_json()
-        parent = Parent.query.filter_by(parentID=reJson['id']).first()
+        professor = Professor.query.filter_by(profID=reJson['id']).first()
         
-        db.session.delete(parent)
+        db.session.delete(professor)
         db.session.commit()
         return jsonify(succcess=True)
     except:
         return jsonify(success=False)
 
-@app.route('/api/parents/update', methods = ['POST'])
-def updateParent():
-    """ Updates a parent in the database """    
+@app.route('/api/professors/update', methods = ['POST'])
+def updateProfessor():
+    """ Updates a professor in the database """    
     
     try:
         reJson = request.get_json()
 
         # Find the parent to update
-        parent = Parent.query.filter_by(parentID=reJson['id']).first()
+        professor = Professor.query.filter_by(profID=reJson['id']).first()
 
         # Update
         if 'email' in reJson:
-            parent.parentEmail = reJson['email']
+            professor.profEmail = reJson['email']
         if 'name' in reJson:
-            parent.parentName = reJson['name']
+            professor.profName = reJson['name']
         if 'phone' in reJson:
-            parent.parentPhone = reJson['phone']
+            professor.profPhone = reJson['phone']
         if 'surname' in reJson:
-            parent.parentSurname = reJson['surname']
+            professor.profSurname = reJson['surname']
         if 'adress' in reJson:
-            parent.parentAdress = reJson['adress']
+            professor.profAdress = reJson['adress']
+        if 'title' in reJson:
+            professor.profTitle = reJson['title']
 
 
-        # Updating children
-        if 'childrenIDs' in reJson:
-            staying = []
-            # If the kids are not in the new --> they got deleted
-            for child in parent.children:
-                if not child.studentID in reJson['childrenIDs']:
-                    parent.children.remove(child)
-                staying.append(child.studentID)
-            
-            # If they are in the new list but not in the old --> they got added
-            # Getting only the new ones
-            reJson['childrenIDs'] = list(set(reJson['childrenIDs'])- set(staying))
-            for childID in reJson['childrenIDs']:
-                child = Students.query.filter_by(studentID = childID)
-                parent.children.append(child)
-    
+        if 'classID' in reJson:
+            professor.classes.clear()
+            professor.classes.append(Class.query.filter_by(classID=reJson['classID']))
+        
         db.session.commit() 
         return jsonify(succcess=True)
 
