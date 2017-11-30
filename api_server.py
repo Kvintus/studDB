@@ -365,6 +365,83 @@ def updateParent():
     except:
         return jsonify(success=False)
 
+##                       Professor manipulation                            ##
+@app.route('/api/professors/add', methods = ['POST'])
+def addProfessor():
+    """ Adds a professor to a database """    
+    
+    try:
+        professor =  Professor()
+        reJson = request.get_json()
+
+        professor.profEmail = reJson['email']
+        professor.profTitle = reJson['title']
+        professor.profName = reJson['name']
+        professor.profLoc = reJson['loc']
+        professor.profPhone = reJson['phone']
+        professor.profSurname = reJson['surname']
+        professor.profAdress = reJson['adress']
+
+        if 'classID' in reJson:
+            professor.classes.clear()
+            professor.classes.append(Class.query.filter_by(classID=reJson['classID']))
+        
+
+        db.session.add(professor)
+        db.session.commit()
+        return jsonify(succcess=True)
+    except:
+        return jsonify(success=False)
+
+@app.route('/api/professors/remove', methods = ['POST'])
+def removeProfessor():
+    """ Removes a professor from a database """    
+    
+    try:
+        reJson = request.get_json()
+        professor = Professor.query.filter_by(profID=reJson['id']).first()
+        
+        db.session.delete(professor)
+        db.session.commit()
+        return jsonify(succcess=True)
+    except:
+        return jsonify(success=False)
+
+@app.route('/api/professors/update', methods = ['POST'])
+def updateProfessor():
+    """ Updates a professor in the database """    
+    
+    try:
+        reJson = request.get_json()
+
+        # Find the parent to update
+        professor = Professor.query.filter_by(profID=reJson['id']).first()
+
+        # Update
+        if 'email' in reJson:
+            professor.profEmail = reJson['email']
+        if 'name' in reJson:
+            professor.profName = reJson['name']
+        if 'phone' in reJson:
+            professor.profPhone = reJson['phone']
+        if 'surname' in reJson:
+            professor.profSurname = reJson['surname']
+        if 'adress' in reJson:
+            professor.profAdress = reJson['adress']
+        if 'title' in reJson:
+            professor.profTitle = reJson['title']
+
+
+        if 'classID' in reJson:
+            professor.classes.clear()
+            professor.classes.append(Class.query.filter_by(classID=reJson['classID']))
+        
+        db.session.commit() 
+        return jsonify(succcess=True)
+
+    except:
+        return jsonify(success=False)
+
 @app.route('/')
 def index():
     return "<h1> StudDB API </h1>"
