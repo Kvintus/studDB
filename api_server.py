@@ -237,7 +237,6 @@ def addClass():
         newClass.classStart = reJson['classStart']
 
         db.session.add(newClass)
-        print('adding new class')
         db.session.commit()
         return jsonify(succcess=True)
     except:
@@ -263,14 +262,15 @@ def updateClass():
     
     try:
         reJson = request.get_json()
-        ourClass = Class.query.filter_by(classID=reJson['id'])
+        ourClass = Class.query.filter_by(classID=reJson['id']).first()
 
-        ourClass.classLetter = reJson['classLetter']
-        ourClass.classRoom = reJson['classRoom']
-        ourClass.classStart = reJson['classStart']
+        if 'classLetter' in reJson:
+            ourClass.classLetter = reJson['classLetter']
+        if 'classRoom' in reJson:
+            ourClass.classRoom = reJson['classRoom']
+        if 'classStart' in reJson:
+            ourClass.classStart = reJson['classStart']
 
-        db.session.add(newClass)
-        print('adding new class')
         db.session.commit()
         return jsonify(succcess=True)
     except:
