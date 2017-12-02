@@ -170,6 +170,36 @@ def apiProfessors():
         
     return jsonify(status = statusResponse, professors = mainResponse)
 
+@app.route('/api/professors/getOne')
+def getProfesor():
+    if request.method == 'GET':
+        profID = request.args.get('id')
+        statusResponse = -1
+        returnProfessor = {}
+        
+        try:
+            professor = Professor.query.filter_by(profID = profID).first()
+            
+            returnProfessor = {'id': int(professor.profID),
+                                    'name': professor.profName,
+                                    'surname': professor.profSurname,
+                                    'email': professor.profEmail,
+                                    'phone': professor.profPhone,
+                                    'title': professor.profTitle,
+                                    'loc': professor.profLoc,
+                                    'adress': professor.profAdress,
+                                    'classIDs': []
+                                    }
+
+            for cl in professor.classes:
+                returnProfessor['classIDs'].append(cl.classID)
+
+            statusResponse = 1
+        except:
+            statusResponse = -1
+
+        return jsonify(status=statusResponse, student=returnProfessor)
+
 ###########################################################################
 # Manipulating
 ###########################################################################
