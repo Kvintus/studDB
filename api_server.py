@@ -81,7 +81,7 @@ def apiClasses():
             statusResponse = 1
 
 
-            today = date.today()
+        today = date.today()
         
         for Classe in orderedClasses:
             ourResponse = {'id': Classe.classID,
@@ -90,8 +90,8 @@ def apiClasses():
                                  'room': Classe.classRoom,
                                  'name': str(Classe.classStart) + Classe.classLetter
                                  }
-            
-            differenceInDays = today - date(Classe['start'], 9, 1)
+
+            differenceInDays = (today - date(int(Classe.classStart), 9, 1)).days
             if differenceInDays < 1461:
                 if differenceInDays < 365 and differenceInDays > 0:
                     ourResponse['altname'] = 'I.'
