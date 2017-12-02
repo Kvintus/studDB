@@ -85,6 +85,36 @@ def apiClasses():
 
         return jsonify(status=statusResponse, classes=mainResponse)
 
+@app.route('/api/classes/getOne')
+def getClass():
+    if request.method == 'GET':
+        classID = request.args.get('id')
+        statusResponse = -1
+        returnClass = {}
+        
+        try:
+            ourClass = Class.query.filter_by(classID = classID).first()
+            
+            returnClass = {'id': int(ourClass.classID),
+                            'letter': ourClass.classLetter,
+                            'room': ourClass.classRoom,
+                            'start': ourClass.classStart,
+                            'pupils': [],
+                            'professors' : []
+                                    }
+
+            for professor in ourClass.profs:
+                returnClass['professors'].append(professor.profID)
+            
+            for pupil in ourClass.pupils:
+                returnClass['pupils'].append(pupil.studentID)
+
+            statusResponse = 1
+        except:
+            statusResponse = -1
+
+        return jsonify(status=statusResponse, student=returnClass)
+
 @app.route('/api/parents')
 def apiParents():
     if request.method == "GET":
