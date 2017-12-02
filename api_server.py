@@ -158,7 +158,9 @@ def apiParents():
         for parent in orderedParents:
             mainResponse.append({'id': parent.parentID,
                                     'name': parent.parentName,
-                                    'surname': parent.parentSurname
+                                    'surname': parent.parentSurname,
+                                    'email': parent.parentEmail,
+                                    'phone': parent.parentPhone
                                     })
         
         return jsonify(status = statusResponse, parents = mainResponse)
@@ -211,7 +213,10 @@ def apiProfessors():
         for professor in orderedProfessors:
             profR = {'id': professor.profID,
                                     'name': professor.profName,
-                                    'surname': professor.profSurname
+                                    'surname': professor.profSurname,
+                                    'title': professor.profTitle,
+                                    'email': professor.profEmail,
+                                    'phone':professor.profPhone
                                     }
             if len(professor.classes.all()) > 0:
                 profR['class'] = professor.classes.first().classID
