@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, make_response, Response
 from sqlalchemy.sql.functions import func
 from helpers.sqlClasses import *
+from datetime import date
 import json
 
 app = Flask(__name__)
@@ -78,14 +79,32 @@ def apiClasses():
         elif orderByArg == "start":
             orderedClasses = Class.query.order_by(Class.classStart).all()
             statusResponse = 1
+
+
+            today = date.today()
         
         for Classe in orderedClasses:
-            mainResponse.append({'id': Classe.classID,
+            ourResponse = {'id': Classe.classID,
                                  'letter': Classe.classLetter,
                                  'start': Classe.classStart,
                                  'room': Classe.classRoom,
-                                 })
+                                 'name': str(Classe.classStart) + Classe.classLetter
+                                 }
+            
+            differenceInDays = today - date(Classe['start'], 9, 1)
+            if differenceInDays < 1461:
+                if differenceInDays < 365 and differenceInDays > 0:
+                    ourResponse['altname'] = 'I.'
+                elif differenceInDays < 730 and differenceInDays > 365:
+                    ourResponse['altname'] = 'II.'
+                elif differenceInDays < 1095 and differenceInDays > 730:
+                    ourResponse['altname'] = 'III.'
+                elif differenceInDays < 1461 and differenceInDays > 730:
+                    ourResponse['altname'] = 'IV.'
+                
+                ourResponse['altname'] += Classe.classLetter
 
+            mainResponse.append(ourResponse)
         return jsonify(status=statusResponse, classes=mainResponse)
 
 @app.route('/api/classes/getOne')
