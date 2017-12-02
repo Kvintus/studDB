@@ -37,6 +37,32 @@ def apiStudents():
 
         return jsonify(status=statusResponse, students=mainResponse)
 
+@app.route('/api/students/getOne')
+def getStudent():
+    if request.method == 'GET':
+        studID = request.args.get('id')
+        statusResponse = -1
+        returnStudent = {}
+        
+        try:
+            student = Students.query.filter_by(studentID = studID).first()
+            
+            returnStudent = {'id': int(student.studentID),
+                                    'name': student.studentName,
+                                    'surname': student.studentSurname,
+                                    'email': student.studentEmail,
+                                    'phone': student.studentPhone,
+                                    'parentIDs': []
+                                    }
+            for parent in student.parents:
+                returnStudent['parentIDs'].append(parent.parentID)
+
+            statusResponse = 1
+        except:
+            statusResponse = -1
+
+        return jsonify(status=statusResponse, student=returnStudent)
+
 @app.route('/api/classes')
 def apiClasses():
     if request.method == 'GET':
@@ -61,6 +87,36 @@ def apiClasses():
                                  })
 
         return jsonify(status=statusResponse, classes=mainResponse)
+
+@app.route('/api/classes/getOne')
+def getClass():
+    if request.method == 'GET':
+        classID = request.args.get('id')
+        statusResponse = -1
+        returnClass = {}
+        
+        try:
+            ourClass = Class.query.filter_by(classID = classID).first()
+            
+            returnClass = {'id': int(ourClass.classID),
+                            'letter': ourClass.classLetter,
+                            'room': ourClass.classRoom,
+                            'start': ourClass.classStart,
+                            'pupils': [],
+                            'professors' : []
+                                    }
+
+            for professor in ourClass.profs:
+                returnClass['professors'].append(professor.profID)
+            
+            for pupil in ourClass.pupils:
+                returnClass['pupils'].append(pupil.studentID)
+
+            statusResponse = 1
+        except:
+            statusResponse = -1
+
+        return jsonify(status=statusResponse, student=returnClass)
 
 @app.route('/api/parents')
 def apiParents():
@@ -88,7 +144,33 @@ def apiParents():
         
         return jsonify(status = statusResponse, parents = mainResponse)
             
- 
+@app.route('/api/parents/getOne')
+def getParent():
+    if request.method == 'GET':
+        parentID = request.args.get('id')
+        statusResponse = -1
+        returnParent = {}
+        
+        try:
+            parent = Parent.query.filter_by(parentID = parentID).first()
+            
+            returnParent = {'id': int(parent.parentID),
+                                    'name': parent.parentName,
+                                    'surname': parent.parentSurname,
+                                    'email': parent.parentEmail,
+                                    'phone': parent.parentPhone,
+                                    'childIDs': []
+                                    }
+            
+            for child in parent.children:
+                returnParent['childIDs'].append(child.studentID)
+    
+            statusResponse = 1
+        except:
+            statusResponse = -1
+
+        return jsonify(status=statusResponse, student=returnParent)
+
 @app.route('/api/professors')
 def apiProfessors():
     if request.method == "GET":
@@ -120,6 +202,36 @@ def apiProfessors():
             mainResponse.append(profR)
         
     return jsonify(status = statusResponse, professors = mainResponse)
+
+@app.route('/api/professors/getOne')
+def getProfesor():
+    if request.method == 'GET':
+        profID = request.args.get('id')
+        statusResponse = -1
+        returnProfessor = {}
+        
+        try:
+            professor = Professor.query.filter_by(profID = profID).first()
+            
+            returnProfessor = {'id': int(professor.profID),
+                                    'name': professor.profName,
+                                    'surname': professor.profSurname,
+                                    'email': professor.profEmail,
+                                    'phone': professor.profPhone,
+                                    'title': professor.profTitle,
+                                    'loc': professor.profLoc,
+                                    'adress': professor.profAdress,
+                                    'classIDs': []
+                                    }
+
+            for cl in professor.classes:
+                returnProfessor['classIDs'].append(cl.classID)
+
+            statusResponse = 1
+        except:
+            statusResponse = -1
+
+        return jsonify(status=statusResponse, student=returnProfessor)
 
 ###########################################################################
 # Manipulating
