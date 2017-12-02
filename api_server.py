@@ -111,7 +111,33 @@ def apiParents():
         
         return jsonify(status = statusResponse, parents = mainResponse)
             
- 
+@app.route('/api/parents/getOne')
+def getParent():
+    if request.method == 'GET':
+        parentID = request.args.get('id')
+        statusResponse = -1
+        returnParent = {}
+        
+        try:
+            parent = Parent.query.filter_by(parentID = parentID).first()
+            
+            returnParent = {'id': int(parent.parentID),
+                                    'name': parent.parentName,
+                                    'surname': parent.parentSurname,
+                                    'email': parent.parentEmail,
+                                    'phone': parent.parentPhone,
+                                    'childIDs': []
+                                    }
+            
+            for child in parent.children:
+                returnParent['childIDs'].append(child.studentID)
+    
+            statusResponse = 1
+        except:
+            statusResponse = -1
+
+        return jsonify(status=statusResponse, student=returnParent)
+
 @app.route('/api/professors')
 def apiProfessors():
     if request.method == "GET":
