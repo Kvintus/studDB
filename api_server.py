@@ -52,8 +52,11 @@ def getStudent():
                                     'surname': student.studentSurname,
                                     'email': student.studentEmail,
                                     'phone': student.studentPhone,
-                                    'parentIDs': [student.parents[0].parentID,student.parents[1].parentID]
+                                    'parentIDs': []
                                     }
+            for parent in student.parents:
+                returnStudent['parentIDs'].append(parent.parentID)
+
             statusResponse = 1
         except:
             statusResponse = -1
