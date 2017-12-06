@@ -8,6 +8,28 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///assets/database.db'
 db.init_app(app)
 
+
+def getClassAltName(start, letter):
+    today = date.today()
+    differenceInDays = (today - date(int(start), 9, 1)).days
+    altname = '' 
+
+    if differenceInDays < 1461:
+        if differenceInDays < 365 and differenceInDays > 0:
+            altname = 'I.'
+        elif differenceInDays < 730 and differenceInDays > 365:
+            altname = 'II.'
+        elif differenceInDays < 1095 and differenceInDays > 730:
+            altname = 'III.'
+        elif differenceInDays < 1461 and differenceInDays > 730:
+            altname = 'IV.'
+        
+        altname += letter
+        return altname
+    else:
+        return None
+
+
 # Providing info 
 ################
 @app.route('/api/students')
@@ -53,10 +75,16 @@ def getStudent():
                                     'surname': student.studentSurname,
                                     'birth': student.studentDateOfBirth,
                                     'email': student.studentEmail,
+                                    'class': {'id':student.classes.first().classID},
                                     'adress': student.studentAdress,
                                     'phone': student.studentPhone,
                                     'parents': []
                                     }
+            
+            returnStudent['class']['name'] = str(student.classes.first().classStart) + student.classes.first().classLetter
+            altname = getClassAltName(student.classes.first().classStart, student.classes.first().classLetter)
+            if altname != None:
+                returnStudent['class']['altname'] = altname 
             
             for parent in student.parents:
                 ourParent = {'id': parent.parentID, 'wholeName': "{} {}".format(parent.parentName, parent.parentSurname)}
@@ -84,9 +112,6 @@ def apiClasses():
         elif orderByArg == "start":
             orderedClasses = Class.query.order_by(Class.classStart).all()
             statusResponse = 1
-
-
-        today = date.today()
         
         for Classe in orderedClasses:
             ourResponse = {'id': Classe.classID,
@@ -96,21 +121,16 @@ def apiClasses():
                                  'name': str(Classe.classStart) + Classe.classLetter
                                  }
 
-            differenceInDays = (today - date(int(Classe.classStart), 9, 1)).days
-            if differenceInDays < 1461:
-                if differenceInDays < 365 and differenceInDays > 0:
-                    ourResponse['altname'] = 'I.'
-                elif differenceInDays < 730 and differenceInDays > 365:
-                    ourResponse['altname'] = 'II.'
-                elif differenceInDays < 1095 and differenceInDays > 730:
-                    ourResponse['altname'] = 'III.'
-                elif differenceInDays < 1461 and differenceInDays > 730:
-                    ourResponse['altname'] = 'IV.'
-                
-                ourResponse['altname'] += Classe.classLetter
+            altname = getClassAltName(Classe.classStart, Classe.classLetter)
+            if altname != None:
+                ourResponse['altname'] = altname
 
             mainResponse.append(ourResponse)
         return jsonify(status=statusResponse, classes=mainResponse)
+
+
+    
+
 
 @app.route('/api/classes/getOne')
 def getClass():
@@ -126,9 +146,14 @@ def getClass():
                             'letter': ourClass.classLetter,
                             'room': ourClass.classRoom,
                             'start': ourClass.classStart,
+                            'name': str(ourClass.classStart) + ourClass.classLetter,
                             'pupils': [],
                             'professors' : []
                                     }
+
+            altname = getClassAltName(ourClass.classStart, ourClass.classLetter)
+            if altname != None:
+                returnClass['altname'] = altname
 
             for professor in ourClass.profs:
                 returnClass['professors'].append(professor.profID)
