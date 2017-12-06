@@ -51,6 +51,7 @@ def getStudent():
             returnStudent = {'id': int(student.studentID),
                                     'name': student.studentName,
                                     'surname': student.studentSurname,
+                                    'birth': sutdent.studentDateOfBirth,
                                     'email': student.studentEmail,
                                     'phone': student.studentPhone,
                                     'parentIDs': []
