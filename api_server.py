@@ -351,8 +351,11 @@ def updateStudent():
         reJson = request.get_json()
 
         # Find the student to update
-        student = Students.query.filter_by(studentID=reJson['id']).first()
-
+        try:
+            student = Students.query.filter_by(studentID=reJson['id']).first()
+        except:
+            return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(reJson['id'])
+        
         # Update
         if 'email' in reJson:
             student.studentEmail = reJson['email']
@@ -371,23 +374,29 @@ def updateStudent():
 
 
         # Adding his parents
-        if 'motherID' in reJson:
-            mother = Parent.query.filter_by(parentID=reJson['motherID']).first()
-            student.parents[0] = mother
-        if 'fatherID' in reJson:
-            father = Parent.query.filter_by(parentID=reJson['fatherID']).first()
-            student.parents[1] = father
+        student.parents.clear()
+        for parent in reJson['parents']:
+            try:
+                parent = Parent.query.filter_by(parentID=parent['id']).first()
+                student.parents.append(parent)
+            except:
+                return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parent['id'])
         
         
-
-
         # Assigning the student a class
         if 'classID' in reJson:
-            newClass = Class.query.filter_by(classID=reJson['classID']).first()
-            student.classes[0] = newClass
+            if reJson['classID'] == 'remove':
+                student.classes.pop()
+            else:
+                try:
+                    student.classes.pop()
+                    newClass = Class.query.filter_by(classID=reJson['classID']).first()
+                    student.classes.append(newClass)
+                except:
+                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID'])
 
         db.session.commit() 
-        return jsonify(succcess=True)
+        return jsonify(succcess=True, studentName="{} {}".format(student.studentName, student.studentSurname))
 
     except:
         return jsonify(success=False)
