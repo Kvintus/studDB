@@ -382,6 +382,7 @@ def updateStudent():
             try:
                 parent = Parent.query.filter_by(parentID=parentID).first()
                 student.parents.append(parent)
+                print(student.parents[0].parentID) #Quick fix, without this it doesn't work !!!
             except:
                 return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
         
@@ -400,9 +401,11 @@ def updateStudent():
                         student.classes.remove(classs)
 
                     newClass = Class.query.filter_by(classID=reJson['classID']).first()
-                    student.classes.append(newClass)
+                    if newClass is not None:
+                        student.classes.append(newClass)
+                    else:
+                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
                 except:
-                    raise
                     return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
         
         db.session.commit() 
