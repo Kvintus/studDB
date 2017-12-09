@@ -8,6 +8,28 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///assets/database.db'
 db.init_app(app)
 
+
+def getClassAltName(start, letter):
+    today = date.today()
+    differenceInDays = (today - date(int(start), 9, 1)).days
+    altname = '' 
+
+    if differenceInDays < 1461:
+        if differenceInDays < 365 and differenceInDays > 0:
+            altname = 'I.'
+        elif differenceInDays < 730 and differenceInDays > 365:
+            altname = 'II.'
+        elif differenceInDays < 1095 and differenceInDays > 730:
+            altname = 'III.'
+        elif differenceInDays < 1461 and differenceInDays > 730:
+            altname = 'IV.'
+        
+        altname += letter
+        return altname
+    else:
+        return None
+
+
 # Providing info 
 ################
 @app.route('/api/students')
@@ -53,10 +75,18 @@ def getStudent():
                                     'surname': student.studentSurname,
                                     'birth': student.studentDateOfBirth,
                                     'email': student.studentEmail,
+                                    'start': student.studentStart,
+                                    'class': {'id':'','name':''},
                                     'adress': student.studentAdress,
                                     'phone': student.studentPhone,
                                     'parents': []
                                     }
+            for cl in student.classes:  
+                returnStudent['class']['name'] = str(cl.classStart) + cl.classLetter
+                returnStudent['class']['id'] = cl.classID
+                altname = getClassAltName(cl.classStart, student.classes.first().classLetter)
+                if altname != None:
+                    returnStudent['class']['altname'] = altname 
             
             for parent in student.parents:
                 ourParent = {'id': parent.parentID, 'wholeName': "{} {}".format(parent.parentName, parent.parentSurname)}
@@ -84,9 +114,6 @@ def apiClasses():
         elif orderByArg == "start":
             orderedClasses = Class.query.order_by(Class.classStart).all()
             statusResponse = 1
-
-
-        today = date.today()
         
         for Classe in orderedClasses:
             ourResponse = {'id': Classe.classID,
@@ -96,21 +123,16 @@ def apiClasses():
                                  'name': str(Classe.classStart) + Classe.classLetter
                                  }
 
-            differenceInDays = (today - date(int(Classe.classStart), 9, 1)).days
-            if differenceInDays < 1461:
-                if differenceInDays < 365 and differenceInDays > 0:
-                    ourResponse['altname'] = 'I.'
-                elif differenceInDays < 730 and differenceInDays > 365:
-                    ourResponse['altname'] = 'II.'
-                elif differenceInDays < 1095 and differenceInDays > 730:
-                    ourResponse['altname'] = 'III.'
-                elif differenceInDays < 1461 and differenceInDays > 730:
-                    ourResponse['altname'] = 'IV.'
-                
-                ourResponse['altname'] += Classe.classLetter
+            altname = getClassAltName(Classe.classStart, Classe.classLetter)
+            if altname != None:
+                ourResponse['altname'] = altname
 
             mainResponse.append(ourResponse)
         return jsonify(status=statusResponse, classes=mainResponse)
+
+
+    
+
 
 @app.route('/api/classes/getOne')
 def getClass():
@@ -126,9 +148,14 @@ def getClass():
                             'letter': ourClass.classLetter,
                             'room': ourClass.classRoom,
                             'start': ourClass.classStart,
+                            'name': str(ourClass.classStart) + ourClass.classLetter,
                             'pupils': [],
                             'professors' : []
                                     }
+
+            altname = getClassAltName(ourClass.classStart, ourClass.classLetter)
+            if altname != None:
+                returnClass['altname'] = altname
 
             for professor in ourClass.profs:
                 returnClass['professors'].append(professor.profID)
@@ -285,24 +312,33 @@ def addStudent():
 
 
         # Adding his parents
-        if 'motherID' in reJson:
-            mother = Parent.query.filter_by(parentID=reJson['motherID']).first()
-            student.parents[0] = mother
-        if 'fatherID' in reJson:
-            father = Parent.query.filter_by(parentID=reJson['fatherID']).first()
-            student.parents[1] = father
+        for parentID in reJson['parents']:
+            try:
+                parent = Parent.query.filter_by(parentID=parentID).first()
+                student.parents.append(parent)
+                print(student.parents[0].parentID) #Quick fix, without this it doesn't work !!!
+            except:
+                raise
+                return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
         
         
         # Assigning the student a class
-        if 'classID' in reJson:
-            newClass = Class.query.filter_by(classID=reJson['classID']).first()
-            student.classes[0] = newClass
-
+        if reJson['classID'] != None:
+            try:
+                newClass = Class.query.filter_by(classID=reJson['classID']).first()
+                if newClass is not None:
+                    student.classes.append(newClass)
+                else:
+                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+            except:
+                raise
+                return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
 
         db.session.add(student)
         db.session.commit()
-        return jsonify(succcess=True)
+        return jsonify(succcess=True, studentID=student.studentID)
     except:
+        raise
         return jsonify(success=False)
 
 @app.route('/api/students/remove', methods = ['POST'])
@@ -312,10 +348,23 @@ def removeStudent():
     try:
         reJson = request.get_json()
         student = Students.query.filter_by(studentID=reJson['id']).first()
-        db.session.delete(student)
-        db.session.commit()
-        return jsonify(succcess=True)
+        if student is not None:
+            # Delete all relationships
+            for parent in student.parents:
+                student.parents.remove(parent)
+
+            for cl in student.classes:
+                student.classes.remove(cl)
+
+            print(student.classes)
+
+            db.session.delete(student)
+            db.session.commit()
+            return jsonify(succcess=True)
+        else:
+            return jsonify(success=False, message="The user with ID {} doesn't exist.".format(reJson['id']))
     except:
+        raise
         return jsonify(success=False)
 
 @app.route('/api/students/update', methods = ['POST'])
@@ -326,8 +375,11 @@ def updateStudent():
         reJson = request.get_json()
 
         # Find the student to update
-        student = Students.query.filter_by(studentID=reJson['id']).first()
-
+        try:
+            student = Students.query.filter_by(studentID=int(reJson['id'])).first()
+        except:
+            return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(reJson['id']))
+        
         # Update
         if 'email' in reJson:
             student.studentEmail = reJson['email']
@@ -346,25 +398,43 @@ def updateStudent():
 
 
         # Adding his parents
-        if 'motherID' in reJson:
-            mother = Parent.query.filter_by(parentID=reJson['motherID']).first()
-            student.parents[0] = mother
-        if 'fatherID' in reJson:
-            father = Parent.query.filter_by(parentID=reJson['fatherID']).first()
-            student.parents[1] = father
+        for parent in student.parents:
+            student.parents.remove(parent)
+
+        for parentID in reJson['parents']:
+            try:
+                parent = Parent.query.filter_by(parentID=parentID).first()
+                student.parents.append(parent)
+                print(student.parents[0].parentID) #Quick fix, without this it doesn't work !!!
+            except:
+                return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
         
         
-
-
+        
         # Assigning the student a class
         if 'classID' in reJson:
-            newClass = Class.query.filter_by(classID=reJson['classID']).first()
-            student.classes[0] = newClass
+            if reJson['classID'] == 'remove':
+                
+                for classs in student.classes:
+                    student.classes.remove(classs)
 
+            else:
+                try:
+                    for classs in student.classes:
+                        student.classes.remove(classs)
+
+                    newClass = Class.query.filter_by(classID=reJson['classID']).first()
+                    if newClass is not None:
+                        student.classes.append(newClass)
+                    else:
+                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                except:
+                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+        
         db.session.commit() 
-        return jsonify(succcess=True)
-
+        return jsonify(success=True, studentName="{} {}".format(student.studentName, student.studentSurname))
     except:
+        raise
         return jsonify(success=False)
 
 
