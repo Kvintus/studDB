@@ -300,6 +300,7 @@ def addStudent():
     try:
         student =  Students()
         reJson = request.get_json()
+        print(reJson)
         student.studentEmail = reJson['email']
         student.studentName = reJson['name']
         student.studentPhone = reJson['phone']
@@ -310,24 +311,32 @@ def addStudent():
 
 
         # Adding his parents
-        if 'motherID' in reJson:
-            mother = Parent.query.filter_by(parentID=reJson['motherID']).first()
-            student.parents[0] = mother
-        if 'fatherID' in reJson:
-            father = Parent.query.filter_by(parentID=reJson['fatherID']).first()
-            student.parents[1] = father
+        for parentID in reJson['parents']:
+            try:
+                parent = Parent.query.filter_by(parentID=parentID).first()
+                student.parents.append(parent)
+                print(student.parents[0].parentID) #Quick fix, without this it doesn't work !!!
+            except:
+                raise
+                return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
         
         
         # Assigning the student a class
-        if 'classID' in reJson:
+        try:
             newClass = Class.query.filter_by(classID=reJson['classID']).first()
-            student.classes[0] = newClass
-
+            if newClass is not None:
+                student.classes.append(newClass)
+            else:
+                return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+        except:
+            raise
+            return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
 
         db.session.add(student)
         db.session.commit()
-        return jsonify(succcess=True)
+        return jsonify(succcess=True, studentID=student.studentID)
     except:
+        raise
         return jsonify(success=False)
 
 @app.route('/api/students/remove', methods = ['POST'])
@@ -337,10 +346,23 @@ def removeStudent():
     try:
         reJson = request.get_json()
         student = Students.query.filter_by(studentID=reJson['id']).first()
-        db.session.delete(student)
-        db.session.commit()
-        return jsonify(succcess=True)
+        if student is not None:
+            # Delete all relationships
+            for parent in student.parents:
+                student.parents.remove(parent)
+
+            for cl in student.classes:
+                student.classes.remove(cl)
+
+            print(student.classes)
+
+            db.session.delete(student)
+            db.session.commit()
+            return jsonify(succcess=True)
+        else:
+            return jsonify(success=False, message="The user with ID {} doesn't exist.".format(reJson['id']))
     except:
+        raise
         return jsonify(success=False)
 
 @app.route('/api/students/update', methods = ['POST'])
@@ -377,7 +399,6 @@ def updateStudent():
         for parent in student.parents:
             student.parents.remove(parent)
 
-        print(reJson['parents'])
         for parentID in reJson['parents']:
             try:
                 parent = Parent.query.filter_by(parentID=parentID).first()
