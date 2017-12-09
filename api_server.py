@@ -75,16 +75,18 @@ def getStudent():
                                     'surname': student.studentSurname,
                                     'birth': student.studentDateOfBirth,
                                     'email': student.studentEmail,
-                                    'class': {'id':student.classes.first().classID},
+                                    'start': student.studentStart,
+                                    'class': {'id':'','name':''},
                                     'adress': student.studentAdress,
                                     'phone': student.studentPhone,
                                     'parents': []
                                     }
-            
-            returnStudent['class']['name'] = str(student.classes.first().classStart) + student.classes.first().classLetter
-            altname = getClassAltName(student.classes.first().classStart, student.classes.first().classLetter)
-            if altname != None:
-                returnStudent['class']['altname'] = altname 
+            for cl in student.classes:  
+                returnStudent['class']['name'] = str(cl.classStart) + cl.classLetter
+                returnStudent['class']['id'] = cl.classID
+                altname = getClassAltName(cl.classStart, student.classes.first().classLetter)
+                if altname != None:
+                    returnStudent['class']['altname'] = altname 
             
             for parent in student.parents:
                 ourParent = {'id': parent.parentID, 'wholeName': "{} {}".format(parent.parentName, parent.parentSurname)}
@@ -300,7 +302,6 @@ def addStudent():
     try:
         student =  Students()
         reJson = request.get_json()
-        print(reJson)
         student.studentEmail = reJson['email']
         student.studentName = reJson['name']
         student.studentPhone = reJson['phone']
@@ -322,15 +323,16 @@ def addStudent():
         
         
         # Assigning the student a class
-        try:
-            newClass = Class.query.filter_by(classID=reJson['classID']).first()
-            if newClass is not None:
-                student.classes.append(newClass)
-            else:
+        if reJson['classID'] != None:
+            try:
+                newClass = Class.query.filter_by(classID=reJson['classID']).first()
+                if newClass is not None:
+                    student.classes.append(newClass)
+                else:
+                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+            except:
+                raise
                 return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
-        except:
-            raise
-            return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
 
         db.session.add(student)
         db.session.commit()
