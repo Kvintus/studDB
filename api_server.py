@@ -161,8 +161,8 @@ def getClass():
             for professor in ourClass.profs:
                 returnClass['professors'].append({'id': professor.profID, 'wholeName': '{} {}'.format(professor.profName, professor.profSurname)})
             
-            for pupil in ourClass.pupils:
-                returnClass['pupils'].append({'id':pupil.studentID, 'wholeName':'{} {}'.format(pupil.studentName, pupil.studentSurname)})
+            for pupil in ourClass.pupils.order_by(Students.studentSurname).all():
+                returnClass['pupils'].append({'id':pupil.studentID, 'name': pupil.studentName, 'surname': pupil.studentSurname})
 
             statusResponse = 1
         except:
