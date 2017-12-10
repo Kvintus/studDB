@@ -459,15 +459,43 @@ def addClass():
         reJson = request.get_json()
 
         newClass =  Class()
-        newClass.classLetter = reJson['classLetter']
-        newClass.classRoom = reJson['classRoom']
-        newClass.classStart = reJson['classStart']
+        newClass.classLetter = reJson['letter']
+        newClass.classRoom = reJson['room']
+        newClass.classStart = reJson['start']
+
+        for pupilID in reJson['pupils']:
+            try:
+                pupil = Students.query.filter_by(studentID=pupilID).first()
+                if pupil is not None:
+                    newClass.pupils.append(pupil)
+                    print(newClass.pupils[0].studentID) #Quick fix, without this it doesn't work !!!
+                else:
+                    return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
+            except:
+                raise
+                return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
+
+        
+        # Adding his parents
+        for professorID in reJson['professors']:
+            try:
+                professor = Professor.query.filter_by(profID=professorID).first()
+                if professor is not None:
+                    newClass.profs.append(professor)
+                else:
+                    return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(professorID))
+            except:
+                raise
+                return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(parentID))
+        
+
 
         db.session.add(newClass)
         db.session.commit()
-        return jsonify(succcess=True)
+        return jsonify(succcess=True, classID=newClass.classID)
     except:
-        return jsonify(success=False)
+        raise
+        return jsonify(success=False, message='Not enought information provided')
 
 @app.route('/api/classes/remove', methods = ['POST'])
 def removeClass():
@@ -475,16 +503,17 @@ def removeClass():
      
     try:
         reJson = request.get_json()
-        ourClass = Class.query.filter_by(classID=reJson['classID']).first()
+        ourClass = Class.query.filter_by(classID=reJson['id']).first()
 
         ourClass.pupils = []
+        ourClass.profs = []
 
         db.session.commit()
         db.session.delete(ourClass)
         db.session.commit()
         return jsonify(succcess=True)
     except:
-        return jsonify(success=False)
+        return jsonify(success=False, message="Failed deleting")
 
 @app.route('/api/classes/update', methods = ['POST'])
 def updateClass():
@@ -494,17 +523,44 @@ def updateClass():
         reJson = request.get_json()
         ourClass = Class.query.filter_by(classID=reJson['id']).first()
 
-        if 'classLetter' in reJson:
-            ourClass.classLetter = reJson['classLetter']
-        if 'classRoom' in reJson:
-            ourClass.classRoom = reJson['classRoom']
-        if 'classStart' in reJson:
-            ourClass.classStart = reJson['classStart']
+        if 'letter' in reJson:
+            ourClass.classLetter = reJson['letter']
+        if 'room' in reJson:
+            ourClass.classRoom = reJson['room']
+        if 'start' in reJson:
+            ourClass.classStart = reJson['start']
+
+        print(reJson['professors'])
+
+        # Adding his professors
+        ourClass.profs = []
+        for professorID in reJson['professors']:
+            try:
+                professor = Professor.query.filter_by(profID=professorID).first()
+                if professor is not None:
+                    ourClass.profs.append(professor)
+                else:
+                    return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(professorID))
+            except:
+                raise
+                return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(parentID))
+
+        ourClass.pupils = []
+        for pupilID in reJson['pupils']:
+            try:
+                pupil = Students.query.filter_by(studentID=pupilID).first()
+                ourClass.pupils.append(pupil)
+                print(ourClass.pupils[0].studentID) #Quick fix, without this it doesn't work !!!
+            except:
+                raise
+                return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
+
 
         db.session.commit()
         return jsonify(succcess=True)
     except:
-        return jsonify(success=False)
+        raise
+        return jsonify(success=False, message='fail')
 
 ##                       Parent manipulation                            ##
 @app.route('/api/parents/add', methods = ['POST'])
