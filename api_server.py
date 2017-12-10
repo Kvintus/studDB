@@ -211,18 +211,21 @@ def getParent():
                                     'name': parent.parentName,
                                     'surname': parent.parentSurname,
                                     'email': parent.parentEmail,
+                                    'adress': parent.parentAdress,
                                     'phone': parent.parentPhone,
-                                    'childIDs': []
+                                    'children': []
                                     }
             
             for child in parent.children:
-                returnParent['childIDs'].append(child.studentID)
+                ourChild = {'id':child.studentID, 'wholeName':'{} {}'.format(child.studentName, child.studentSurname)}
+                returnParent['children'].append(ourChild)
     
             statusResponse = 1
         except:
+            raise
             statusResponse = -1
 
-        return jsonify(status=statusResponse, student=returnParent)
+        return jsonify(status=statusResponse, parent=returnParent)
 
 @app.route('/api/professors')
 def apiProfessors():
