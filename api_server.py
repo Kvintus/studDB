@@ -509,14 +509,19 @@ def addParent():
         parent.parentSurname = reJson['surname']
         parent.parentAdress = reJson['adress']
 
-        if 'childrenIDs' in reJson:
-            for childrenID in reJson['childrenIDs']:
-                child = Students.query.filter_by(studentID = childrenID)
+        # Adding his parents
+        for childID in reJson['children']:
+            try:
+                child = Students.query.filter_by(studentID=childID).first()
                 parent.children.append(child)
+                print(parent.children[0].studentID) #Quick fix, without this it doesn't work !!!
+            except:
+                raise
+                return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(childID))
 
         db.session.add(parent)
         db.session.commit()
-        return jsonify(succcess=True)
+        return jsonify(succcess=True, parentID=parent.parentID)
     except:
         return jsonify(success=False)
 
@@ -541,9 +546,12 @@ def updateParent():
     try:
         reJson = request.get_json()
 
-        # Find the parent to update
-        parent = Parent.query.filter_by(parentID=reJson['id']).first()
-
+        # Find the student to update
+        try:
+            parent = Parent.query.filter_by(parentID=int(reJson['id'])).first()
+        except:
+            return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(reJson['id']))
+        
         # Update
         if 'email' in reJson:
             parent.parentEmail = reJson['email']
@@ -553,30 +561,31 @@ def updateParent():
             parent.parentPhone = reJson['phone']
         if 'surname' in reJson:
             parent.parentSurname = reJson['surname']
+        if 'start' in reJson:
+            parent.parentStart = reJson['start']
         if 'adress' in reJson:
             parent.parentAdress = reJson['adress']
 
 
-        # Updating children
-        if 'childrenIDs' in reJson:
-            staying = []
-            # If the kids are not in the new --> they got deleted
-            for child in parent.children:
-                if not child.studentID in reJson['childrenIDs']:
-                    parent.children.remove(child)
-                staying.append(child.studentID)
-            
-            # If they are in the new list but not in the old --> they got added
-            # Getting only the new ones
-            reJson['childrenIDs'] = list(set(reJson['childrenIDs'])- set(staying))
-            for childID in reJson['childrenIDs']:
-                child = Students.query.filter_by(studentID = childID)
-                parent.children.append(child)
-    
-        db.session.commit() 
-        return jsonify(succcess=True)
+        # Adding his children
+        for child in parent.children:
+            parent.children.remove(child)
 
+        for childID in reJson['children']:
+            try:
+                child = Students.query.filter_by(studentID=childID).first()
+                parent.children.append(child)
+                print(parent.children[0].studentID) #Quick fix, without this it doesn't work !!!
+            except:
+                raise
+                return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(childID))
+        
+
+        
+        db.session.commit() 
+        return jsonify(success=True, parentName="{} {}".format(parent.parentName, parent.parentSurname))
     except:
+        raise
         return jsonify(success=False)
 
 ##                       Professor manipulation                            ##
