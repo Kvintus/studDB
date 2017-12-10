@@ -159,16 +159,16 @@ def getClass():
                 returnClass['altname'] = altname
 
             for professor in ourClass.profs:
-                returnClass['professors'].append(professor.profID)
+                returnClass['professors'].append({'id': professor.profID, 'wholeName': '{} {}'.format(professor.profName, professor.profSurname)})
             
             for pupil in ourClass.pupils:
-                returnClass['pupils'].append(pupil.studentID)
+                returnClass['pupils'].append({'id':pupil.studentID, 'wholeName':'{} {}'.format(pupil.studentName, pupil.studentSurname)})
 
             statusResponse = 1
         except:
             statusResponse = -1
 
-        return jsonify(status=statusResponse, student=returnClass)
+        return jsonify(status=statusResponse, rclass=returnClass)
 
 @app.route('/api/parents')
 def apiParents():
