@@ -81,6 +81,7 @@ def getStudent():
                                     'phone': student.studentPhone,
                                     'parents': []
                                     }
+            
             for cl in student.classes:  
                 returnStudent['class']['name'] = str(cl.classStart) + cl.classLetter
                 returnStudent['class']['id'] = cl.classID
@@ -280,17 +281,25 @@ def getProfesor():
                                     'title': professor.profTitle,
                                     'loc': professor.profLoc,
                                     'adress': professor.profAdress,
-                                    'classIDs': []
+                                    'classes': []
                                     }
 
+
             for cl in professor.classes:
-                returnProfessor['classIDs'].append(cl.classID)
+                ourClass = {} 
+                ourClass['name'] = str(cl.classStart) + cl.classLetter
+                ourClass['id'] = cl.classID
+                altname = getClassAltName(cl.classStart, cl.classLetter)
+                if altname != None:
+                    ourClass['altname'] = altname 
+                
+                returnProfessor['classes'].append(ourClass)
 
             statusResponse = 1
         except:
             statusResponse = -1
 
-        return jsonify(status=statusResponse, student=returnProfessor)
+        return jsonify(status=statusResponse, professor=returnProfessor)
 
 ###########################################################################
 # Manipulating
@@ -359,7 +368,6 @@ def removeStudent():
             for cl in student.classes:
                 student.classes.remove(cl)
 
-            print(student.classes)
 
             db.session.delete(student)
             db.session.commit()
@@ -381,6 +389,7 @@ def updateStudent():
         try:
             student = Students.query.filter_by(studentID=int(reJson['id'])).first()
         except:
+            raise
             return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(reJson['id']))
         
         # Update
@@ -468,6 +477,9 @@ def removeClass():
         reJson = request.get_json()
         ourClass = Class.query.filter_by(classID=reJson['classID']).first()
 
+        ourClass.pupils = []
+
+        db.session.commit()
         db.session.delete(ourClass)
         db.session.commit()
         return jsonify(succcess=True)
@@ -533,6 +545,9 @@ def removeParent():
         reJson = request.get_json()
         parent = Parent.query.filter_by(parentID=reJson['id']).first()
         
+        parent.children = []
+        
+        db.session.commit()
         db.session.delete(parent)
         db.session.commit()
         return jsonify(succcess=True)
@@ -605,30 +620,41 @@ def addProfessor():
         professor.profSurname = reJson['surname']
         professor.profAdress = reJson['adress']
 
-        if 'classID' in reJson:
-            professor.classes.clear()
-            professor.classes.append(Class.query.filter_by(classID=reJson['classID']))
-        
 
+        for classID in reJson['classes']:
+            try:
+                newClass = Class.query.filter_by(classID=classID).first()
+                if newClass is not None:
+                    professor.classes.append(newClass)
+                else:
+                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(classID))
+            except:
+                raise
+                return jsonify(success=False, message="There is no class with the ID {} in the database.".format(classID))
+        
         db.session.add(professor)
         db.session.commit()
-        return jsonify(succcess=True)
+        return jsonify(succcess=True, professorID=professor.profID)
     except:
         return jsonify(success=False)
 
 @app.route('/api/professors/remove', methods = ['POST'])
 def removeProfessor():
     """ Removes a professor from a database """    
-    
     try:
         reJson = request.get_json()
         professor = Professor.query.filter_by(profID=reJson['id']).first()
+
+        for cl in professor.classes:
+                professor.classes.remove(cl)
         
+        db.session.commit()
         db.session.delete(professor)
         db.session.commit()
         return jsonify(succcess=True)
     except:
-        return jsonify(success=False)
+        raise
+        return jsonify(success=False, message="There is no professor with the ID {} in the database.".format(reJson['id']))
 
 @app.route('/api/professors/update', methods = ['POST'])
 def updateProfessor():
@@ -655,15 +681,26 @@ def updateProfessor():
             professor.profTitle = reJson['title']
 
 
-        if 'classID' in reJson:
-            professor.classes.clear()
-            professor.classes.append(Class.query.filter_by(classID=reJson['classID']))
+        # Assigning the professor a class
+        for classs in professor.classes:
+                professor.classes.remove(classs)
+        
+        for classID in reJson['classes']:
+            try:
+                newClass = Class.query.filter_by(classID=classID).first()
+                if newClass is not None:
+                    professor.classes.append(newClass)
+                else:
+                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(classID))
+            except:
+                raise
+                return jsonify(success=False, message="There is no class with the ID {} in the database.".format(classID))
         
         db.session.commit() 
-        return jsonify(succcess=True)
-
+        return jsonify(succcess=True, professorID=professor.profID)
     except:
-        return jsonify(success=False)
+        raise
+        return jsonify(success=False, message='Fail')
 
 @app.route('/')
 def index():
