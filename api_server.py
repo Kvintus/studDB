@@ -8,7 +8,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///assets/database.db'
 db.init_app(app)
 
 
+# Importing all the blueprints
+from blueprints.classesBlueprint import classes_mod
+from blueprints.parentsBlueprint import parents_mod
 
+# Registering the blueprints
+app.register_blueprint(classes_mod, url_prefix='/api/classes')
+app.register_blueprint(parents_mod, url_prefix='/api/parents')
 
 
 # Providing info 
@@ -81,71 +87,9 @@ def getStudent():
 
         return jsonify(status=statusResponse, student=returnStudent)
 
-from blueprints.classes import classes_mod
-
-app.register_blueprint(classes_mod, url_prefix='/api/classes')
  
 
 
-
-
-@app.route('/api/parents')
-def apiParents():
-    if request.method == "GET":
-        orderByArg = request.args.get('orderBy')
-        statusResponse = -1
-        orderedParents = []
-        mainResponse = []
-
-        if orderByArg == "id" or not orderByArg:
-            orderedParents = Parent.query.order_by(Parent.parentID).all()
-            statusResponse = 1
-        elif orderByArg == "name":
-            orderedParents = Parent.query.order_by(Parent.parentName).all()
-            statusResponse = 1
-        elif orderByArg == "surname":
-            orderedParents = Parent.query.order_by(Parent.parentSurname).all()
-            statusResponse = 1
-        
-        for parent in orderedParents:
-            mainResponse.append({'id': parent.parentID,
-                                    'name': parent.parentName,
-                                    'surname': parent.parentSurname,
-                                    'email': parent.parentEmail,
-                                    'phone': parent.parentPhone
-                                    })
-        
-        return jsonify(status = statusResponse, parents = mainResponse)
-            
-@app.route('/api/parents/getOne')
-def getParent():
-    if request.method == 'GET':
-        parentID = request.args.get('id')
-        statusResponse = -1
-        returnParent = {}
-        
-        try:
-            parent = Parent.query.filter_by(parentID = parentID).first()
-            
-            returnParent = {'id': int(parent.parentID),
-                                    'name': parent.parentName,
-                                    'surname': parent.parentSurname,
-                                    'email': parent.parentEmail,
-                                    'adress': parent.parentAdress,
-                                    'phone': parent.parentPhone,
-                                    'children': []
-                                    }
-            
-            for child in parent.children:
-                ourChild = {'id':child.studentID, 'wholeName':'{} {}'.format(child.studentName, child.studentSurname)}
-                returnParent['children'].append(ourChild)
-    
-            statusResponse = 1
-        except:
-            raise
-            statusResponse = -1
-
-        return jsonify(status=statusResponse, parent=returnParent)
 
 @app.route('/api/professors')
 def apiProfessors():
@@ -369,214 +313,9 @@ def updateStudent():
         return jsonify(success=False)
 
 
-##                       Class manipulation                            ##
-@app.route('/api/classes/add', methods = ['POST'])
-def addClass():
-    """ Adds a class to a database """    
-    
-    try:
-        reJson = request.get_json()
-
-        newClass =  Class()
-        newClass.classLetter = reJson['letter']
-        newClass.classRoom = reJson['room']
-        newClass.classStart = reJson['start']
-
-        for pupilID in reJson['pupils']:
-            try:
-                pupil = Students.query.filter_by(studentID=pupilID).first()
-                if pupil is not None:
-                    newClass.pupils.append(pupil)
-                    print(newClass.pupils[0].studentID) #Quick fix, without this it doesn't work !!!
-                else:
-                    return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
-            except:
-                raise
-                return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
-
-        
-        # Adding his parents
-        for professorID in reJson['professors']:
-            try:
-                professor = Professor.query.filter_by(profID=professorID).first()
-                if professor is not None:
-                    newClass.profs.append(professor)
-                else:
-                    return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(professorID))
-            except:
-                raise
-                return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(parentID))
-        
 
 
-        db.session.add(newClass)
-        db.session.commit()
-        return jsonify(succcess=True, classID=newClass.classID)
-    except:
-        raise
-        return jsonify(success=False, message='Not enought information provided')
 
-@app.route('/api/classes/remove', methods = ['POST'])
-def removeClass():
-    """ Removes a class from a database """    
-     
-    try:
-        reJson = request.get_json()
-        ourClass = Class.query.filter_by(classID=reJson['id']).first()
-
-        ourClass.pupils = []
-        ourClass.profs = []
-
-        db.session.commit()
-        db.session.delete(ourClass)
-        db.session.commit()
-        return jsonify(succcess=True)
-    except:
-        return jsonify(success=False, message="Failed deleting")
-
-@app.route('/api/classes/update', methods = ['POST'])
-def updateClass():
-    """ Updates a class """    
-    
-    try:
-        reJson = request.get_json()
-        ourClass = Class.query.filter_by(classID=reJson['id']).first()
-
-        if 'letter' in reJson:
-            ourClass.classLetter = reJson['letter']
-        if 'room' in reJson:
-            ourClass.classRoom = reJson['room']
-        if 'start' in reJson:
-            ourClass.classStart = reJson['start']
-
-        print(reJson['professors'])
-
-        # Adding his professors
-        ourClass.profs = []
-        for professorID in reJson['professors']:
-            try:
-                professor = Professor.query.filter_by(profID=professorID).first()
-                if professor is not None:
-                    ourClass.profs.append(professor)
-                else:
-                    return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(professorID))
-            except:
-                raise
-                return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(parentID))
-
-        ourClass.pupils = []
-        for pupilID in reJson['pupils']:
-            try:
-                pupil = Students.query.filter_by(studentID=pupilID).first()
-                ourClass.pupils.append(pupil)
-                print(ourClass.pupils[0].studentID) #Quick fix, without this it doesn't work !!!
-            except:
-                raise
-                return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
-
-
-        db.session.commit()
-        return jsonify(succcess=True)
-    except:
-        raise
-        return jsonify(success=False, message='fail')
-
-##                       Parent manipulation                            ##
-@app.route('/api/parents/add', methods = ['POST'])
-def addParent():
-    """ Adds a parent to a database """    
-    
-    try:
-        parent =  Parent()
-        reJson = request.get_json()
-
-        parent.parentEmail = reJson['email']
-        parent.parentName = reJson['name']
-        parent.parentPhone = reJson['phone']
-        parent.parentSurname = reJson['surname']
-        parent.parentAdress = reJson['adress']
-
-        # Adding his parents
-        for childID in reJson['children']:
-            try:
-                child = Students.query.filter_by(studentID=childID).first()
-                parent.children.append(child)
-                print(parent.children[0].studentID) #Quick fix, without this it doesn't work !!!
-            except:
-                raise
-                return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(childID))
-
-        db.session.add(parent)
-        db.session.commit()
-        return jsonify(succcess=True, parentID=parent.parentID)
-    except:
-        return jsonify(success=False)
-
-@app.route('/api/parents/remove', methods = ['POST'])
-def removeParent():
-    """ Removes a parent from a database """    
-    
-    try:
-        reJson = request.get_json()
-        parent = Parent.query.filter_by(parentID=reJson['id']).first()
-        
-        parent.children = []
-        
-        db.session.commit()
-        db.session.delete(parent)
-        db.session.commit()
-        return jsonify(succcess=True)
-    except:
-        return jsonify(success=False)
-
-@app.route('/api/parents/update', methods = ['POST'])
-def updateParent():
-    """ Updates a parent in the database """    
-    
-    try:
-        reJson = request.get_json()
-
-        # Find the student to update
-        try:
-            parent = Parent.query.filter_by(parentID=int(reJson['id'])).first()
-        except:
-            return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(reJson['id']))
-        
-        # Update
-        if 'email' in reJson:
-            parent.parentEmail = reJson['email']
-        if 'name' in reJson:
-            parent.parentName = reJson['name']
-        if 'phone' in reJson:
-            parent.parentPhone = reJson['phone']
-        if 'surname' in reJson:
-            parent.parentSurname = reJson['surname']
-        if 'start' in reJson:
-            parent.parentStart = reJson['start']
-        if 'adress' in reJson:
-            parent.parentAdress = reJson['adress']
-
-
-        # Adding his children
-        for child in parent.children:
-            parent.children.remove(child)
-
-        for childID in reJson['children']:
-            try:
-                child = Students.query.filter_by(studentID=childID).first()
-                parent.children.append(child)
-                print(parent.children[0].studentID) #Quick fix, without this it doesn't work !!!
-            except:
-                raise
-                return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(childID))
-        
-
-        
-        db.session.commit() 
-        return jsonify(success=True, parentName="{} {}".format(parent.parentName, parent.parentSurname))
-    except:
-        raise
-        return jsonify(success=False)
 
 ##                       Professor manipulation                            ##
 @app.route('/api/professors/add', methods = ['POST'])
