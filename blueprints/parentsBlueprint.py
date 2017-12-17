@@ -47,6 +47,9 @@ def getParent():
         
         try:
             parent = Parent.query.filter_by(parentID = parentID).first()
+
+            if parent is None:
+                return jsonify(status=-1, message='There is no such parent in the database')
             
             returnParent = {'id': int(parent.parentID),
                                     'name': parent.parentName,

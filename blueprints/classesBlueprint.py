@@ -72,6 +72,9 @@ def getClass():
         
         try:
             ourClass = Class.query.filter_by(classID = classID).first()
+
+            if ourClass is None:
+                return jsonify(status=-1, message='There is no such class in the database')
             
             returnClass = {'id': int(ourClass.classID),
                             'letter': ourClass.classLetter,
