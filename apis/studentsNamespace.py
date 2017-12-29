@@ -8,24 +8,40 @@ import os,sys,inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
-from helpers.sqlClasses import Students
+from core.sqlClasses import Students, Parent, Class
 from core.helpers import token_required
 
 students_api = Namespace('students', 'Operations with students')
-idOnlyParser = idAndTokenParser = reqparse.RequestParser()
+
+# Setting up ID only parser
+idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
-newStudent = students_api.model({
-    'name': fields.String(default="John"),
-    'surname': fields.String(default="Doe"),
-    'birth': fields.String(default="1.1.2000"),
-    'email': fields.String(default="students@mail.com"),
-    'start': fields.Integer(default=date.today().year),
+
+# Defining a newstudent model
+newStudent = students_api.model('Student', {
+    'name': fields.String(default="John" , required=True),
+    'surname': fields.String(default="Doe", required=True),
+    'birth': fields.String(default="1.1.2000", required=True),
+    'email': fields.String(default="students@mail.com", required=True),
+    'start': fields.Integer(default=date.today().year, required=True),
     'classID': fields.Integer(default=1, description="ID of the student's class"),
-    'adress': fields.String(default="Students Adress 16 NY"),
-    'phone': fields.String(default="+421 999 999 999"),
-    'parents': [
-        fields.Integer(default=1, description="ID of the parrent")
-    ]
+    'adress': fields.String(default="Students Adress 16 NY", required=True),
+    'phone': fields.String(default="+421 999 999 999", required=True),
+    'parents': fields.List(fields.Integer, description="IDs of the parrents")
+})
+
+# Defining an update model
+updateStudent = students_api.model('Student', {
+    'id': fields.Integer(default=0, description='ID field of the student to update'),
+    'name': fields.String(default="John" , required=False),
+    'surname': fields.String(default="Doe", required=False),
+    'birth': fields.String(default="1.1.2000", required=False),
+    'email': fields.String(default="students@mail.com", required=False),
+    'start': fields.Integer(default=date.today().year, required=False),
+    'classID': fields.Integer(default=1, description="ID of the student's class"),
+    'adress': fields.String(default="Students Adress 16 NY", required=False),
+    'phone': fields.String(default="+421 999 999 999", required=False),
+    'parents': fields.List(fields.Integer, description="IDs of the parrents")
 })
 
 def getClassAltName(start, letter):
@@ -50,8 +66,9 @@ def getClassAltName(start, letter):
 
 
 @students_api.route('/all')
-class Students(Resource):
+class AllStudents(Resource):
     def get(self):
+        """ Displays all the students """
         orderByArg = request.args.get('orderBy')
         statusResponse = -1
         orderedStudents = []
@@ -76,8 +93,6 @@ class Students(Resource):
                                  })
 
         return jsonify(status=statusResponse, students=mainResponse)
-
-
 
 
 @students_api.route('/')
@@ -131,6 +146,7 @@ class Student(Resource):
         return jsonify(status=statusResponse, student=returnStudent)
     
     @students_api.expect(newStudent)
+    @students_api.doc(security='apikey')
     @token_required
     def post(self, tokenData):
         """ Adds a student to a database """    
@@ -177,6 +193,8 @@ class Student(Resource):
         except:
             return jsonify(success=False)
 
+    @students_api.expect(idOnlyParser)
+    @students_api.doc(security='apikey')
     @token_required
     def delete(self, tokenData):
         """ Removes a student from a database """
@@ -205,6 +223,8 @@ class Student(Resource):
             raise
             return jsonify(success=False)
 
+    @students_api.doc(security='apikey')
+    @students_api.expect(updateStudent)
     @token_required
     def put():
         """ Updates a student in the database """    
