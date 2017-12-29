@@ -70,7 +70,6 @@ class AllStudents(Resource):
     def get(self):
         """ Displays all the students """
         orderByArg = request.args.get('orderBy')
-        statusResponse = -1
         orderedStudents = []
         mainResponse = []
 
@@ -92,7 +91,7 @@ class AllStudents(Resource):
                                  'phone': student.studentPhone
                                  })
 
-        return jsonify(status=statusResponse, students=mainResponse)
+        return jsonify(success=True, students=mainResponse)
 
 
 @students_api.route('/')
@@ -104,7 +103,7 @@ class Student(Resource):
         """ Gets one student """
 
         if not 'id' in request.args:
-            return jsonify(status=-1, message='No student is specified')
+            return jsonify(success=False, message='No student is specified')
 
         studID = request.args.get('id')
         statusResponse = -1
@@ -113,7 +112,7 @@ class Student(Resource):
         try:
             student = Students.query.filter_by(studentID = studID).first()
             if student is None:
-                return jsonify(status=-1, message='There is no such student in the database')
+                return jsonify(success=False, message='There is no such student in the database')
             
             returnStudent = {
                 'id': int(student.studentID),
@@ -143,7 +142,7 @@ class Student(Resource):
         except:
             statusResponse = -1
 
-        return jsonify(status=statusResponse, student=returnStudent)
+        return jsonify(success=True, student=returnStudent)
     
     @students_api.expect(newStudent)
     @students_api.doc(security='apikey')
@@ -151,7 +150,7 @@ class Student(Resource):
     def post(self, tokenData):
         """ Adds a student to a database """    
         if tokenData['privilege'] < 3:
-            return jsonify(status=-1, message="You dont't have privilege to add users")
+            return jsonify(success=False, message="You dont't have privilege to add users")
             
         try:
             student =  Students()
