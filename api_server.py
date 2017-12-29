@@ -4,7 +4,11 @@ from helpers.sqlClasses import *
 import json
 from apis import api
 
+
+app_secret = 'thisisasupersecretkey'
+
 app = Flask(__name__)
+app.config['SECRET_KEY'] = app_secret
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///assets/database.db'
 db.init_app(app)
 api.init_app(app)
