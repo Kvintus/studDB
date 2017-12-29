@@ -2,6 +2,8 @@ from flask_restplus import Api
 
 from .studentsNamespace import students_api
 from .parentsNamespace import parents_api
+from .professorsNamespace import professors_api
+
 
 
 authorizations = {
@@ -22,4 +24,5 @@ api = Api(
 
 api.add_namespace(students_api, path="/api/student")
 api.add_namespace(parents_api, path="/api/parent")
+api.add_namespace(professors_api, path="/api/professors")
 

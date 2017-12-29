@@ -9,7 +9,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 from core.sqlClasses import *
-from core.helpers import token_required
+from core.helpers import token_required, getClassAltName
 
 students_api = Namespace('students', 'Operations with students')
 
@@ -43,27 +43,6 @@ updateStudent = students_api.model('UpdateStudent', {
     'phone': fields.String(default="+421 999 999 999", required=False),
     'parents': fields.List(fields.Integer, description="IDs of the parrents")
 })
-
-def getClassAltName(start, letter):
-    today = date.today()
-    differenceInDays = (today - date(int(start), 9, 1)).days
-    altname = '' 
-
-    if differenceInDays < 1461:
-        if differenceInDays < 365 and differenceInDays > 0:
-            altname = 'I.'
-        elif differenceInDays < 730 and differenceInDays > 365:
-            altname = 'II.'
-        elif differenceInDays < 1095 and differenceInDays > 730:
-            altname = 'III.'
-        elif differenceInDays < 1461 and differenceInDays > 730:
-            altname = 'IV.'
-        
-        altname += letter
-        return altname
-    else:
-        return None
-
 
 @students_api.route('/all')
 class AllStudents(Resource):
