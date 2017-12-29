@@ -7,7 +7,7 @@ import os,sys,inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
-from helpers.sqlClasses import Students
+from helpers.sqlClasses import *
 
 students_mod = Blueprint('students', __name__)
 
@@ -216,6 +216,7 @@ def updateStudent():
                 student.parents.append(parent)
                 print(student.parents[0].parentID) #Quick fix, without this it doesn't work !!!
             except:
+                raise
                 return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
         
         
