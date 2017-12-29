@@ -18,7 +18,7 @@ idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
 
 # Defining a newstudent model
-newStudent = students_api.model('Student', {
+newStudent = students_api.model('NewStudent', {
     'name': fields.String(default="John" , required=True),
     'surname': fields.String(default="Doe", required=True),
     'birth': fields.String(default="1.1.2000", required=True),
@@ -31,7 +31,7 @@ newStudent = students_api.model('Student', {
 })
 
 # Defining an update model
-updateStudent = students_api.model('Student', {
+updateStudent = students_api.model('UpdateStudent', {
     'id': fields.Integer(default=0, description='ID field of the student to update'),
     'name': fields.String(default="John" , required=False),
     'surname': fields.String(default="Doe", required=False),
