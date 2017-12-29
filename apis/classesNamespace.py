@@ -28,7 +28,7 @@ newClass = classes_api.model('NewClass',
 
 updateClass = classes_api.model('UpdateClass',
     {
-        'id': fields.Integer(default=1, required=True)
+        'id': fields.Integer(default=1, required=True),
         'letter': fields.String(default='A', required=False),
         'room': fields.String(default='P1', required=False),
         'start': fields.Integer(default=2017, required=False)
@@ -67,8 +67,10 @@ class AllClasses(Resource):
                 mainResponse.append(ourResponse)
             return jsonify(success=True, classes=mainResponse)
 
-@classes_mod.route('/')
+@classes_api.route('/')
 class OneClass(Resource):
+    
+    @classes_api.expect(idOnlyParser)
     def get(self):
         """ Returns a specific class """
         classID = request.args.get('id')
