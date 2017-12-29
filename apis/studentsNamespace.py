@@ -8,7 +8,7 @@ import os,sys,inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
-from core.sqlClasses import Students, Parent, Class
+from core.sqlClasses import *
 from core.helpers import token_required
 
 students_api = Namespace('students', 'Operations with students')
@@ -101,7 +101,7 @@ class Student(Resource):
     
     @students_api.expect(idOnlyParser)
     def get(self):
-        """ Get one student """
+        """ Gets one student """
 
         if not 'id' in request.args:
             return jsonify(status=-1, message='No student is specified')
@@ -226,8 +226,8 @@ class Student(Resource):
     @students_api.doc(security='apikey')
     @students_api.expect(updateStudent)
     @token_required
-    def put():
-        """ Updates a student in the database """    
+    def put(self, tokenData):
+        """ Edits a student in the database """    
         
         try:
             reJson = request.get_json()
@@ -263,9 +263,14 @@ class Student(Resource):
             for parentID in reJson['parents']:
                 try:
                     parent = Parent.query.filter_by(parentID=parentID).first()
+
+                    if parent == None:
+                        return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+
                     student.parents.append(parent)
                     print(student.parents[0].parentID) #Quick fix, without this it doesn't work !!!
                 except:
+                    raise
                     return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
             
             
@@ -291,7 +296,7 @@ class Student(Resource):
                         return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
             
             db.session.commit() 
-            return jsonify(success=True, studentName="{} {}".format(student.studentName, student.studentSurname))
+            return jsonify(success=True, id = reJson['id'],studentName="{} {}".format(student.studentName, student.studentSurname))
         except:
             raise
             return jsonify(success=False)

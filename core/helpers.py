@@ -12,20 +12,12 @@ import cfg
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Check if the token is in the args
-        argsToken = None
-        argsToken = request.args.get('token')
-
-        # Check if the token is in the header
-        headerToken = None
-        headerToken = request.header.get('X-API-TOKEN')
-
         # If the user didn't specify the token
         token = None
-        if 'X-API-TOKEN' in request.headers:
-            token = request.headers.get('X-API-TOKEN')
-        elif argsToken != None:
-            token = argsToken
+        if 'X-API-KEY' in request.headers:
+            token = request.headers.get('X-API-KEY')
+        elif 'token' in request.args:
+            token = request.args.get('token')
         else:
             return jsonify(message="The authorization token is missing...")
             
