@@ -1,4 +1,5 @@
 from flask_restplus import Api
+from flask import Blueprint
 
 from .studentsNamespace import students_api
 from .parentsNamespace import parents_api
@@ -15,7 +16,9 @@ authorizations = {
     }
 }
 
-api = Api(
+apiBlueprint = Blueprint('api', __name__, url_prefix='/api')
+
+api = Api(apiBlueprint,
     title='StudDB REST API',
     version='1.0',
     name='Peter',
