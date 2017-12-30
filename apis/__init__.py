@@ -26,7 +26,7 @@ api = Api(apiBlueprint,
     authorizations=authorizations
 )
 
-api.add_namespace(students_api, path="/api/student")
-api.add_namespace(parents_api, path="/api/parent")
-api.add_namespace(professors_api, path="/api/professors")
-api.add_namespace(classes_api, path="/api/classes")
+api.add_namespace(students_api, path="/student")
+api.add_namespace(parents_api, path="/parent")
+api.add_namespace(professors_api, path="/professors")
+api.add_namespace(classes_api, path="/classes")

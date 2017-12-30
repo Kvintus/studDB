@@ -27,12 +27,12 @@ newStudent = students_api.model('NewStudent', {
     'classID': fields.Integer(default=1, description="ID of the student's class"),
     'adress': fields.String(default="Students Adress 16 NY", required=True),
     'phone': fields.String(default="+421 999 999 999", required=True),
-    'parents': fields.List(fields.Integer, description="IDs of the parrents")
+    'parents': fields.List(fields.Integer, default= [1, 2], description="IDs of the parrents")
 })
 
 # Defining an update model
 updateStudent = students_api.model('UpdateStudent', {
-    'id': fields.Integer(default=0, description='ID field of the student to update'),
+    'id': fields.Integer(default=1, description='ID field of the student to update'),
     'name': fields.String(default="John" , required=False),
     'surname': fields.String(default="Doe", required=False),
     'birth': fields.String(default="1.1.2000", required=False),
@@ -41,7 +41,7 @@ updateStudent = students_api.model('UpdateStudent', {
     'classID': fields.Integer(default=1, description="ID of the student's class"),
     'adress': fields.String(default="Students Adress 16 NY", required=False),
     'phone': fields.String(default="+421 999 999 999", required=False),
-    'parents': fields.List(fields.Integer, description="IDs of the parrents")
+    'parents': fields.List(fields.Integer, default= [1, 2] , description="IDs of the parrents")
 })
 
 @students_api.route('/all')
@@ -147,10 +147,11 @@ class Student(Resource):
             for parentID in reJson['parents']:
                 try:
                     parent = Parent.query.filter_by(parentID=parentID).first()
+                    if parent == None:
+                        return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+
                     student.parents.append(parent)
-                    print(student.parents[0].parentID) #Quick fix, without this it doesn't work !!!
                 except:
-                    raise
                     return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
             
             
@@ -214,7 +215,6 @@ class Student(Resource):
             try:
                 student = Students.query.filter_by(studentID=int(reJson['id'])).first()
             except:
-                raise
                 return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(reJson['id']))
             
             # Update
@@ -246,9 +246,7 @@ class Student(Resource):
                         return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
                     student.parents.append(parent)
-                    print(student.parents[0].parentID) #Quick fix, without this it doesn't work !!!
                 except:
-                    raise
                     return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
             
             
@@ -276,5 +274,4 @@ class Student(Resource):
             db.session.commit() 
             return jsonify(success=True, id = reJson['id'],studentName="{} {}".format(student.studentName, student.studentSurname))
         except:
-            raise
             return jsonify(success=False)
