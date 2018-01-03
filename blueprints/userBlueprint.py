@@ -31,7 +31,7 @@ def verifyUserLoginAndLogin():
     
     # Check if there is user with that username, if not return an error
     if ourUser == None:
-        return jsonify(success=false, message='There no user with the username {} in the database!'.format(reJson['username']))
+        return jsonify(success=False, message='There no user with the username {} in the database!'.format(reJson['username']))
 
     if sha256.verify(reJson['password'], ourUser.userHash):
         # Create the user payload

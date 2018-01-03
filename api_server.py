@@ -6,9 +6,10 @@ from datetime import timedelta
 from apis import apiBlueprint as api
 from blueprints.userBlueprint import userBlueprint
 import cfg
-
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.config['SECRET_KEY'] = cfg.app_secret
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///assets/database.db' 
 # User gets kicked after 1 day
