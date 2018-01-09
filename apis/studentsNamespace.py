@@ -19,6 +19,11 @@ students_api = Namespace('students', 'Operations with students')
 idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
 
+# Setting up ID only parser in json
+idOnlyParserJson = students_api.model('DeleteStudent', {
+    'id': fields.Integer(default=1, required=True)
+})
+
 # Defining a newstudent model
 newStudent = students_api.model('NewStudent', {
     'name': fields.String(default="John", required=True),
@@ -45,6 +50,28 @@ updateStudent = students_api.model('UpdateStudent', {
     'phone': fields.String(default="+421 999 999 999", required=False),
     'parents': fields.List(fields.Integer, default=[1, 2], description="IDs of the parrents")
 })
+
+## Helper functions ##
+# These need to be while loops so we wont delete the same row twice and thus get an error
+# Deletes all of the parents from the passed student Object
+
+
+def deleteAllParents(student):
+    while True:
+    if len(student.parents.all()) > 0:
+        student.parents.remove(student.parents.first())
+    else:
+        break
+
+# Deletes all of the classes from the passed student Object
+
+
+def deleteAllClasses(student):
+    while True:
+    if len(student.classes.all()) > 0:
+        student.classes.remove(student.classes.first())
+    else:
+        break
 
 
 @students_api.route('/all')
@@ -173,7 +200,7 @@ class Student(Resource):
         except:
             return jsonify(success=False)
 
-    @students_api.expect(idOnlyParser)
+    @students_api.expect(idOnlyParserJson)
     @students_api.doc(security='apikey')
     @token_required
     def delete(self, tokenData):
@@ -187,11 +214,8 @@ class Student(Resource):
             student = Students.query.filter_by(studentID=reJson['id']).first()
             if student is not None:
                 # Delete all relationships
-                for parent in student.parents:
-                    student.parents.remove(parent)
-
-                for cl in student.classes:
-                    student.classes.remove(cl)
+                deleteAllParents(student)
+                deleteAllClasses(student)
 
                 db.session.delete(student)
                 db.session.commit()
@@ -236,9 +260,8 @@ class Student(Resource):
             if 'birth' in reJson:
                 student.studentDateOfBirth = reJson['birth']
 
-            # Adding his parents
-            for parent in student.parents:
-                student.parents.remove(parent)
+            # Adding his parents but first removing the old ones
+            deleteAllParents(student)
 
             for parentID in reJson['parents']:
                 try:
@@ -253,12 +276,11 @@ class Student(Resource):
 
             # Assigning the student a class
             if 'classID' in reJson:
-                if reJson['classID'] == 'remove':
 
-                    for classs in student.classes:
-                        student.classes.remove(classs)
+                # First remove all the classes
+                deleteAllClasses(student)
 
-                else:
+                if reJson['classID'] != remove or reJson['classID'] != '':
                     try:
                         for classs in student.classes:
                             student.classes.remove(classs)
