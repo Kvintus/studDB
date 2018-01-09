@@ -20,11 +20,6 @@ students_api = Namespace('students', 'Operations with students')
 idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
 
-# Setting up ID only parser in json
-idOnlyParserJson = students_api.model('DeleteEntry', {
-    'id': fields.Integer(default=1, required=True)
-})
-
 # Defining a newstudent model
 newStudent = students_api.model('NewStudent', {
     'name': fields.String(default="John", required=True),
