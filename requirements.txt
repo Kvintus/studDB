@@ -1,5 +1,6 @@
 Flask
 gunicorn
+passlib
 flask_sqlalchemy
 flask_restplus
 pyjwt
