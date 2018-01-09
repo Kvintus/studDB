@@ -84,3 +84,11 @@ class Class(db.Model):
     # Relationships
     profRel = db.relationship('Professor', secondary=relClassProf, backref=db.backref('classes', lazy='dynamic'))
     pupilsRel = db.relationship('Students', secondary=relClassStudent, backref=db.backref('classes', lazy='dynamic'))
+
+class User(db.Model):
+    __tablename__ = 'Users'
+    userID = db.Column(db.Integer, primary_key=True)
+    userHash = db.Column(db.String(64), nullable=False)
+    username = db.Column(db.String(20), nullable=False)
+    userPrivilege = db.Column(db.Integer, nullable=False, default=1)
+
