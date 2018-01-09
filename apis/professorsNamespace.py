@@ -1,13 +1,15 @@
-# Normal imports 
+# Normal imports
 from flask import Blueprint, request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
 from datetime import date
-import os,sys,inspect
+import os
+import sys
+import inspect
 
 # Importin from parent directory
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir)
+sys.path.insert(0, parentdir)
 from core.sqlClasses import *
 from core.helpers import token_required, getClassAltName
 
@@ -19,7 +21,7 @@ idOnlyParser.add_argument('id', type=int, required=True, location="args")
 
 # Defining a newProfessor model
 newProfessor = professors_api.model('NewProfessor', {
-    'name': fields.String(default="John" , required=True),
+    'name': fields.String(default="John", required=True),
     'surname': fields.String(default="Doe", required=True),
     'email': fields.String(default="professor@mail.com", required=True),
     'loc': fields.String(default='1st floor', description="Location of professors office"),
@@ -30,8 +32,8 @@ newProfessor = professors_api.model('NewProfessor', {
 
 # Defining a updateProfessor model
 updateProfessor = professors_api.model('UpdateProfessor', {
-    'id': fields.Integer(default=1, required = True),
-    'name': fields.String(default="John" , required=True),
+    'id': fields.Integer(default=1, required=True),
+    'name': fields.String(default="John", required=True),
     'surname': fields.String(default="Doe", required=True),
     'email': fields.String(default="professor@mail.com", required=True),
     'loc': fields.String(default='1st floor', description="Location of professors office"),
@@ -54,23 +56,24 @@ class AllProfessors(Resource):
             orderedProfessors = Professor.query.order_by(Professor.profName).all()
         elif orderByArg == "surname":
             orderedProfessors = Professor.query.order_by(Professor.profSurname).all()
-        
+
         for professor in orderedProfessors:
             profR = {'id': professor.profID,
-                                    'name': professor.profName,
-                                    'surname': professor.profSurname,
-                                    'title': professor.profTitle,
-                                    'email': professor.profEmail,
-                                    'phone':professor.profPhone
-                                    }
+                     'name': professor.profName,
+                     'surname': professor.profSurname,
+                     'title': professor.profTitle,
+                     'email': professor.profEmail,
+                     'phone': professor.profPhone
+                     }
             if len(professor.classes.all()) > 0:
                 profR['class'] = professor.classes.first().classID
             else:
                 profR['class'] = -1
-            
+
             mainResponse.append(profR)
-        
-        return jsonify(success = True, professors = mainResponse)
+
+        return jsonify(success=True, professors=mainResponse)
+
 
 @professors_api.route('/')
 class OneProfessor(Resource):
@@ -82,10 +85,10 @@ class OneProfessor(Resource):
         profID = request.args.get('id')
         statusResponse = -1
         returnProfessor = {}
-        
+
         try:
-            professor = Professor.query.filter_by(profID = profID).first()
-            
+            professor = Professor.query.filter_by(profID=profID).first()
+
             returnProfessor = {
                 'id': int(professor.profID),
                 'name': professor.profName,
@@ -98,15 +101,14 @@ class OneProfessor(Resource):
                 'classes': []
             }
 
-
             for cl in professor.classes:
-                ourClass = {} 
+                ourClass = {}
                 ourClass['name'] = str(cl.classStart) + cl.classLetter
                 ourClass['id'] = cl.classID
                 altname = getClassAltName(cl.classStart, cl.classLetter)
                 if altname != None:
-                    ourClass['altname'] = altname 
-                
+                    ourClass['altname'] = altname
+
                 returnProfessor['classes'].append(ourClass)
 
             statusResponse = 1
@@ -114,15 +116,18 @@ class OneProfessor(Resource):
             statusResponse = -1
 
         return jsonify(status=statusResponse, professor=returnProfessor)
-    
+
     @professors_api.expect(newProfessor)
     @professors_api.doc(security='apikey')
     @token_required
     def post(self, tokenData):
-        """ Adds a professor to a database """    
-        
+        """ Adds a professor to a database """
+
+        if tokenData['privilege'] < 3:
+            return jsonify(succcess=False, message="You don't have privilege to create professors")
+
         try:
-            professor =  Professor()
+            professor = Professor()
             reJson = request.get_json()
 
             professor.profEmail = reJson['email']
@@ -132,7 +137,6 @@ class OneProfessor(Resource):
             professor.profPhone = reJson['phone']
             professor.profSurname = reJson['surname']
             professor.profAdress = reJson['adress']
-
 
             for classID in reJson['classes']:
                 try:
@@ -144,7 +148,7 @@ class OneProfessor(Resource):
                 except:
                     raise
                     return jsonify(success=False, message="There is no class with the ID {} in the database.".format(classID))
-            
+
             db.session.add(professor)
             db.session.commit()
             return jsonify(succcess=True, professorID=professor.profID)
@@ -155,14 +159,18 @@ class OneProfessor(Resource):
     @professors_api.doc(security='apikey')
     @token_required
     def delete(self):
-        """ Removes a professor from a database """    
+        """ Removes a professor from a database """
+
+        if tokenData['privilege'] < 3:
+            return jsonify(succcess=False, message="You don't have privilege to delete professors")
+
         try:
             reJson = request.get_json()
             professor = Professor.query.filter_by(profID=reJson['id']).first()
 
             for cl in professor.classes:
-                    professor.classes.remove(cl)
-            
+                professor.classes.remove(cl)
+
             db.session.commit()
             db.session.delete(professor)
             db.session.commit()
@@ -175,8 +183,11 @@ class OneProfessor(Resource):
     @professors_api.doc(security='apikey')
     @token_required
     def put(self):
-        """ Updates a professor in the database """    
-        
+        """ Updates a professor in the database """
+
+        if tokenData['privilege'] < 3:
+            return jsonify(succcess=False, message="You don't have privilege to update professors")
+
         try:
             reJson = request.get_json()
 
@@ -197,11 +208,10 @@ class OneProfessor(Resource):
             if 'title' in reJson:
                 professor.profTitle = reJson['title']
 
-
             # Assigning the professor a class
             for classs in professor.classes:
-                    professor.classes.remove(classs)
-            
+                professor.classes.remove(classs)
+
             for classID in reJson['classes']:
                 try:
                     newClass = Class.query.filter_by(classID=classID).first()
@@ -211,8 +221,8 @@ class OneProfessor(Resource):
                         return jsonify(success=False, message="There is no class with the ID {} in the database.".format(classID))
                 except:
                     return jsonify(success=False, message="There is no class with the ID {} in the database.".format(classID))
-            
-            db.session.commit() 
+
+            db.session.commit()
             return jsonify(succcess=True, professorID=professor.profID)
         except:
             return jsonify(success=False, message='Fail')
