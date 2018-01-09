@@ -1,12 +1,14 @@
-# Normal imports 
+# Normal imports
 from flask import request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
-import os,sys,inspect
+import os
+import sys
+import inspect
 
 # Importin from parent directory
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir)
+sys.path.insert(0, parentdir)
 from core.sqlClasses import *
 from core.helpers import token_required
 
@@ -16,9 +18,13 @@ parents_api = Namespace('parents', 'Operation with parents')
 idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
 
+idOnlyParserJson = parents_api.model('DeleteEntry', {
+    'id': fields.Integer(default=1, required=True)
+})
+
 # Defining a newParent model
 newParent = parents_api.model('NewParent', {
-    'name': fields.String(default="John" , required=True),
+    'name': fields.String(default="John", required=True),
     'surname': fields.String(default="Doe", required=True),
     'email': fields.String(default="students@mail.com", required=True),
     'adress': fields.String(default="Students Adress 16 NY", required=True),
@@ -29,13 +35,14 @@ newParent = parents_api.model('NewParent', {
 # Defining a updateParent model
 updateParent = parents_api.model('UpdateParent', {
     'id': fields.Integer(default=0, required=True),
-    'name': fields.String(default="John" , required=True),
+    'name': fields.String(default="John", required=True),
     'surname': fields.String(default="Doe", required=True),
     'email': fields.String(default="students@mail.com", required=True),
     'adress': fields.String(default="Students Adress 16 NY", required=True),
     'phone': fields.String(default="+421 999 999 999", required=True),
     'children': fields.List(fields.Integer, description="Children IDs")
 })
+
 
 @parents_api.route('/all')
 class AllParents(Resource):
@@ -55,16 +62,17 @@ class AllParents(Resource):
         elif orderByArg == "surname":
             orderedParents = Parent.query.order_by(Parent.parentSurname).all()
             statusResponse = 1
-        
+
         for parent in orderedParents:
             mainResponse.append({'id': parent.parentID,
-                                    'name': parent.parentName,
-                                    'surname': parent.parentSurname,
-                                    'email': parent.parentEmail,
-                                    'phone': parent.parentPhone
-                                    })
-        
-        return jsonify(status = statusResponse, parents = mainResponse)
+                                 'name': parent.parentName,
+                                 'surname': parent.parentSurname,
+                                 'email': parent.parentEmail,
+                                 'phone': parent.parentPhone
+                                 })
+
+        return jsonify(status=statusResponse, parents=mainResponse)
+
 
 @parents_api.route('/')
 class oneParent(Resource):
@@ -77,36 +85,39 @@ class oneParent(Resource):
             parentID = request.args.get('id')
             statusResponse = -1
             returnParent = {}
-            
-            parent = Parent.query.filter_by(parentID = parentID).first()
+
+            parent = Parent.query.filter_by(parentID=parentID).first()
             if parent == None:
                 return jsonify(succcess=False, message='There is no such parent in the database')
-                
+
             returnParent = {'id': int(parent.parentID),
-                                    'name': parent.parentName,
-                                    'surname': parent.parentSurname,
-                                    'email': parent.parentEmail,
-                                    'adress': parent.parentAdress,
-                                    'phone': parent.parentPhone,
-                                    'children': []
-                                    }
-            
+                            'name': parent.parentName,
+                            'surname': parent.parentSurname,
+                            'email': parent.parentEmail,
+                            'adress': parent.parentAdress,
+                            'phone': parent.parentPhone,
+                            'children': []
+                            }
+
             for child in parent.children:
-                ourChild = {'id':child.studentID, 'wholeName':'{} {}'.format(child.studentName, child.studentSurname)}
+                ourChild = {'id': child.studentID, 'wholeName': '{} {}'.format(child.studentName, child.studentSurname)}
                 returnParent['children'].append(ourChild)
-    
-            statusResponse = 1;
+
+            statusResponse = 1
 
         return jsonify(succcess=True, parent=returnParent)
-    
+
     @parents_api.expect(newParent)
     @parents_api.doc(security='apikey')
     @token_required
     def post(self, tokenData):
-        """ Adds a parent to a database """    
-        
+        """ Adds a parent to a database """
+
+        if tokenData['privilege'] < 3:
+            return jsonify(succcess=False, message="You don't have privilege to create parents")
+
         try:
-            parent =  Parent()
+            parent = Parent()
             reJson = request.get_json()
 
             parent.parentEmail = reJson['email']
@@ -120,7 +131,7 @@ class oneParent(Resource):
                 try:
                     child = Students.query.filter_by(studentID=childID).first()
                     parent.children.append(child)
-                    print(parent.children[0].studentID) #Quick fix, without this it doesn't work !!!
+                    print(parent.children[0].studentID)  # Quick fix, without this it doesn't work !!!
                 except:
                     return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(childID))
 
@@ -132,16 +143,19 @@ class oneParent(Resource):
 
     @token_required
     @parents_api.doc(security='apikey')
-    @parents_api.expect(idOnlyParser)
+    @parents_api.expect(idOnlyParserJson)
     def delete(self, tokenData):
-        """ Removes a parent from a database """    
-        
+        """ Removes a parent from a database """
+
+        if tokenData['privilege'] < 3:
+            return jsonify(succcess=False, message="You don't have privilege to delete parents")
+
         try:
             reJson = request.get_json()
             parent = Parent.query.filter_by(parentID=reJson['id']).first()
-            
+
             parent.children = []
-            
+
             db.session.commit()
             db.session.delete(parent)
             db.session.commit()
@@ -153,8 +167,11 @@ class oneParent(Resource):
     @parents_api.doc(security='apikey')
     @parents_api.expect(updateParent)
     def put(self, tokenData):
-        """ Updates a parent in the database """    
-        
+        """ Updates a parent in the database """
+
+        if tokenData['privilege'] < 3:
+            return jsonify(succcess=False, message="You don't have privilege to update parents")
+
         try:
             reJson = request.get_json()
 
@@ -163,7 +180,7 @@ class oneParent(Resource):
                 parent = Parent.query.filter_by(parentID=int(reJson['id'])).first()
             except:
                 return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(reJson['id']))
-            
+
             # Update
             if 'email' in reJson:
                 parent.parentEmail = reJson['email']
@@ -178,7 +195,6 @@ class oneParent(Resource):
             if 'adress' in reJson:
                 parent.parentAdress = reJson['adress']
 
-
             # Adding his children
             for child in parent.children:
                 parent.children.remove(child)
@@ -187,14 +203,12 @@ class oneParent(Resource):
                 try:
                     child = Students.query.filter_by(studentID=childID).first()
                     parent.children.append(child)
-                    print(parent.children[0].studentID) #Quick fix, without this it doesn't work !!!
+                    print(parent.children[0].studentID)  # Quick fix, without this it doesn't work !!!
                 except:
                     raise
                     return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(childID))
-            
 
-            
-            db.session.commit() 
+            db.session.commit()
             return jsonify(success=True, parentName="{} {}".format(parent.parentName, parent.parentSurname))
         except:
             raise
