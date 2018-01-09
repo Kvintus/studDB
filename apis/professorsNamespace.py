@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
 from datetime import date
+from .helpers import deleteAllClasses
 import os
 import sys
 import inspect
@@ -18,6 +19,10 @@ professors_api = Namespace('professors', 'Operations with professors')
 # Setting up ID only parser
 idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
+
+idOnlyParserJson = professors_api.model('DeleteEntry', {
+    'id': fields.Integer(default=1, required=True)
+})
 
 # Defining a newProfessor model
 newProfessor = professors_api.model('NewProfessor', {
@@ -155,10 +160,10 @@ class OneProfessor(Resource):
         except:
             return jsonify(success=False)
 
-    @professors_api.expect(idOnlyParser)
+    @professors_api.expect(idOnlyParserJson)
     @professors_api.doc(security='apikey')
     @token_required
-    def delete(self):
+    def delete(self, tokenData):
         """ Removes a professor from a database """
 
         if tokenData['privilege'] < 3:
@@ -168,8 +173,7 @@ class OneProfessor(Resource):
             reJson = request.get_json()
             professor = Professor.query.filter_by(profID=reJson['id']).first()
 
-            for cl in professor.classes:
-                professor.classes.remove(cl)
+            deleteAllClasses(professor)
 
             db.session.commit()
             db.session.delete(professor)
@@ -182,7 +186,7 @@ class OneProfessor(Resource):
     @professors_api.expect(updateProfessor)
     @professors_api.doc(security='apikey')
     @token_required
-    def put(self):
+    def put(self, tokenData):
         """ Updates a professor in the database """
 
         if tokenData['privilege'] < 3:
@@ -209,8 +213,7 @@ class OneProfessor(Resource):
                 professor.profTitle = reJson['title']
 
             # Assigning the professor a class
-            for classs in professor.classes:
-                professor.classes.remove(classs)
+            deleteAllClasses(professor)
 
             for classID in reJson['classes']:
                 try:

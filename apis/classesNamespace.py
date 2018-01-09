@@ -2,6 +2,7 @@
 from flask import request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
 from datetime import date
+from .helpers import deleteAllPupils, deleteAllProfessors
 import os
 import sys
 import inspect
@@ -19,6 +20,10 @@ classes_api = Namespace('classes', 'Operations with classes')
 # Setting up ID only parser
 idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
+
+idOnlyParserJson = classes_api.model('DeleteEntry', {
+    'id': fields.Integer(default=1, required=True)
+})
 
 newClass = classes_api.model('NewClass',
                              {
@@ -113,7 +118,7 @@ class OneClass(Resource):
     @classes_api.expect(newClass)
     @classes_api.doc(security='apikey')
     @token_required
-    def post(self):
+    def post(self, tokenData):
         """ Adds a class to a database """
 
         if tokenData['privilege'] < 3:
@@ -154,10 +159,10 @@ class OneClass(Resource):
         except:
             return jsonify(success=False, message='Not enought information provided')
 
-    @classes_api.expect(idOnlyParser)
+    @classes_api.expect(idOnlyParserJson)
     @classes_api.doc(security='apikey')
     @token_required
-    def delete(self):
+    def delete(self, tokenData):
         """ Removes a class from a database """
 
         if tokenData['privilege'] < 3:
@@ -167,20 +172,20 @@ class OneClass(Resource):
             reJson = request.get_json()
             ourClass = Class.query.filter_by(classID=reJson['id']).first()
 
-            ourClass.pupils = []
-            ourClass.profs = []
+            deleteAllPupils(ourClass)
+            deleteAllProfessors(ourClass)
 
-            db.session.commit()
             db.session.delete(ourClass)
             db.session.commit()
             return jsonify(succcess=True)
         except:
+            raise
             return jsonify(success=False, message="Failed deleting")
 
     @classes_api.expect(updateClass)
     @classes_api.doc(security='apikey')
     @token_required
-    def put(self):
+    def put(self, tokenData):
         """ Updates a class """
 
         if tokenData['privilege'] < 3:
@@ -200,7 +205,7 @@ class OneClass(Resource):
             print(reJson['professors'])
 
             # Adding his professors
-            ourClass.profs = []
+            deleteAllProfessors(ourClass)
             for professorID in reJson['professors']:
                 try:
                     professor = Professor.query.filter_by(profID=professorID).first()
@@ -211,7 +216,7 @@ class OneClass(Resource):
                 except:
                     return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(parentID))
 
-            ourClass.pupils = []
+            deleteAllPupils(ourClass)
             for pupilID in reJson['pupils']:
                 try:
                     pupil = Students.query.filter_by(studentID=pupilID).first()

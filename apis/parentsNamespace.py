@@ -18,6 +18,10 @@ parents_api = Namespace('parents', 'Operation with parents')
 idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
 
+idOnlyParserJson = parents_api.model('DeleteEntry', {
+    'id': fields.Integer(default=1, required=True)
+})
+
 # Defining a newParent model
 newParent = parents_api.model('NewParent', {
     'name': fields.String(default="John", required=True),
@@ -139,7 +143,7 @@ class oneParent(Resource):
 
     @token_required
     @parents_api.doc(security='apikey')
-    @parents_api.expect(idOnlyParser)
+    @parents_api.expect(idOnlyParserJson)
     def delete(self, tokenData):
         """ Removes a parent from a database """
 

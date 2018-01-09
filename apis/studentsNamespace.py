@@ -2,6 +2,7 @@
 from flask import request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
 from datetime import date
+from .helpers import *
 import os
 import sys
 import inspect
@@ -20,7 +21,7 @@ idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
 
 # Setting up ID only parser in json
-idOnlyParserJson = students_api.model('DeleteStudent', {
+idOnlyParserJson = students_api.model('DeleteEntry', {
     'id': fields.Integer(default=1, required=True)
 })
 
@@ -52,26 +53,6 @@ updateStudent = students_api.model('UpdateStudent', {
 })
 
 ## Helper functions ##
-# These need to be while loops so we wont delete the same row twice and thus get an error
-# Deletes all of the parents from the passed student Object
-
-
-def deleteAllParents(student):
-    while True:
-    if len(student.parents.all()) > 0:
-        student.parents.remove(student.parents.first())
-    else:
-        break
-
-# Deletes all of the classes from the passed student Object
-
-
-def deleteAllClasses(student):
-    while True:
-    if len(student.classes.all()) > 0:
-        student.classes.remove(student.classes.first())
-    else:
-        break
 
 
 @students_api.route('/all')
