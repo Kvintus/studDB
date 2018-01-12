@@ -18,6 +18,12 @@ parents_api = Namespace('parents', 'Operation with parents')
 idOnlyParser = reqparse.RequestParser()
 idOnlyParser.add_argument('id', type=int, required=True, location="args")
 
+
+# Setting up "First" parser
+firstNArg = reqparse.RequestParser()
+firstNArg.add_argument('first', type=int, required=False, location="args")
+
+
 idOnlyParserJson = parents_api.model('DeleteEntry', {
     'id': fields.Integer(default=1, required=True)
 })
@@ -46,21 +52,26 @@ updateParent = parents_api.model('UpdateParent', {
 
 @parents_api.route('/all')
 class AllParents(Resource):
+    @parents_api.expect(firstNArg)
     def get(self):
         """ Returns all the parents """
         orderByArg = request.args.get('orderBy')
         statusResponse = -1
         orderedParents = []
         mainResponse = []
+        firstN = None
+
+        if 'first' in request.args:
+            firstN = int(request.args['first'])
 
         if orderByArg == "id" or not orderByArg:
-            orderedParents = Parent.query.order_by(Parent.parentID).all()
+            orderedParents = Parent.query.order_by(Parent.parentID).limit(firstN).all()
             statusResponse = 1
         elif orderByArg == "name":
-            orderedParents = Parent.query.order_by(Parent.parentName).all()
+            orderedParents = Parent.query.order_by(Parent.parentName).limit(firstN).all()
             statusResponse = 1
         elif orderByArg == "surname":
-            orderedParents = Parent.query.order_by(Parent.parentSurname).all()
+            orderedParents = Parent.query.order_by(Parent.parentSurname).first(firstN).all()
             statusResponse = 1
 
         for parent in orderedParents:
@@ -71,7 +82,8 @@ class AllParents(Resource):
                                  'phone': parent.parentPhone
                                  })
 
-        return jsonify(status=statusResponse, parents=mainResponse)
+
+        return jsonify(success=True, parents=mainResponse)
 
 
 @parents_api.route('/')

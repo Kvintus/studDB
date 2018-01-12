@@ -24,6 +24,9 @@ idOnlyParserJson = students_api.model('DeleteEntry', {
     'id': fields.Integer(default=1, required=True)
 })
 
+# Setting up "First" parser
+firstNArg = reqparse.RequestParser()
+firstNArg.add_argument('first', type=int, required=False, location="args")
 
 # Defining a newstudent model
 newStudent = students_api.model('NewStudent', {
@@ -57,20 +60,25 @@ updateStudent = students_api.model('UpdateStudent', {
 
 @students_api.route('/all')
 class AllStudents(Resource):
+    @students_api.expect(firstNArg)
     def get(self):
         """ Displays all the students """
         orderByArg = request.args.get('orderBy')
         orderedStudents = []
         mainResponse = []
+        firstN = None 
+
+        if 'first' in request.args:
+            firstN = int(request.args['first'])
 
         if orderByArg == "id" or not orderByArg:
-            orderedStudents = Students.query.order_by(Students.studentID).all()
+            orderedStudents = Students.query.order_by(Students.studentID).limit(firstN).all()
             statusResponse = 1
         elif orderByArg == "name":
-            orderedStudents = Students.query.order_by(Students.studentName).all()
+            orderedStudents = Students.query.order_by(Students.studentName).limit(firstN).all()
             statusResponse = 1
         elif orderByArg == "surname":
-            orderedStudents = Students.query.order_by(Students.studentSurname).all()
+            orderedStudents = Students.query.order_by(Students.studentSurname).limit(firstN).all()
             statusResponse = 1
 
         for student in orderedStudents:
