@@ -22,16 +22,16 @@ def verifyUserLoginAndLogin():
         
     # Check if we got all the fields
     if not 'username' in reJson:
-        return jsonify(success=False, message='You haven\'t specified the username!'.encode('utf-8'))
+        return jsonify(success=False, message='You haven\'t specified the username!')
     if not 'password' in reJson:
-        return jsonify(success=False, message='You haven\'t specified the password!'.encode('utf-8'))
+        return jsonify(success=False, message='You haven\'t specified the password!')
 
     # Get the user from the database
     ourUser = User.query.filter_by(username=reJson['username']).first()
 
     # Check if there is user with that username, if not return an error
     if ourUser == None:
-        return jsonify(success=False, message='There no user with the username {} in the database!'.encode('utf-8').format(reJson['username']))
+        return jsonify(success=False, message='There no user with the username {} in the database!'.format(reJson['username']))
 
     if sha256.verify(reJson['password'], ourUser.userHash):
         # Create the user payload
@@ -42,12 +42,12 @@ def verifyUserLoginAndLogin():
             'exp': datetime.datetime.utcnow() + cfg.app_timedeltaExpiration  # The token will expire after a day
         }
 
-        userBasePayload['api_key'] = jwt.encode(userBasePayload, cfg.app_secret)
+        userBasePayload['api_key'] = jwt.encode(userBasePayload, cfg.app_secret).decode()
         # The user has logged in successfully
         session['user'] = userBasePayload
         return jsonify(success=True, user=userBasePayload)
     else:
-        return jsonify(success=False, message='Wrong password!'.encode('utf-8'))
+        return jsonify(success=False, message='Wrong password!'.)
 
 @userBlueprint.route('/logout', methods=['POST'])
 def logout():
