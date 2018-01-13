@@ -18,8 +18,10 @@ userBlueprint = Blueprint('user', __name__)
 @userBlueprint.route('', methods=['POST'])
 def verifyUserLoginAndLogin():
     """ Verifies a user login """
-
-    reJson = request.get_json()
+    try:
+        reJson = request.get_json()
+    except: 
+        raise
     # Check if we got all the fields
     if not 'username' in reJson:
         return jsonify(success=False, message='You haven\'t specified the username!')
