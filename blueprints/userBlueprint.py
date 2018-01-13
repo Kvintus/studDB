@@ -20,8 +20,9 @@ def verifyUserLoginAndLogin():
     """ Verifies a user login """
     try:
         reJson = request.get_json()
-    except: 
-        raise
+    except:
+        raise ValueError('A very specific bad thing happened.') 
+        
     # Check if we got all the fields
     if not 'username' in reJson:
         return jsonify(success=False, message='You haven\'t specified the username!')
