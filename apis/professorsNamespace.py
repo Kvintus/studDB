@@ -89,7 +89,7 @@ class AllProfessors(Resource):
         return jsonify(success=True, professors=mainResponse)
 
 
-@professors_api.route('/')
+@professors_api.route('')
 class OneProfessor(Resource):
     """ Professor namespace """
 

@@ -86,7 +86,7 @@ class AllParents(Resource):
         return jsonify(success=True, parents=mainResponse)
 
 
-@parents_api.route('/')
+@parents_api.route('')
 class oneParent(Resource):
     """ Parent namespace """
 

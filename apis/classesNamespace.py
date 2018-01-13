@@ -83,7 +83,7 @@ class AllClasses(Resource):
             return jsonify(success=True, classes=mainResponse)
 
 
-@classes_api.route('/')
+@classes_api.route('')
 class OneClass(Resource):
 
     @classes_api.expect(idOnlyParser)

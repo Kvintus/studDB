@@ -92,7 +92,7 @@ class AllStudents(Resource):
         return jsonify(success=True, students=mainResponse)
 
 
-@students_api.route('/')
+@students_api.route('')
 class Student(Resource):
     """ Student namespace """
 
