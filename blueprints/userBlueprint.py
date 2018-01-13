@@ -47,7 +47,7 @@ def verifyUserLoginAndLogin():
         session['user'] = userBasePayload
         return jsonify(success=True, user=userBasePayload)
     else:
-        return jsonify(success=False, message='Wrong password!'.)
+        return jsonify(success=False, message='Wrong password!')
 
 @userBlueprint.route('/logout', methods=['POST'])
 def logout():
