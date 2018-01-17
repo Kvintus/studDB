@@ -18,8 +18,8 @@ userBlueprint = Blueprint('user', __name__)
 @userBlueprint.route('', methods=['POST'])
 def verifyUserLoginAndLogin():
     """ Verifies a user login """
-
-    reJson = request.get_json()
+    reJson = request.get_json() 
+        
     # Check if we got all the fields
     if not 'username' in reJson:
         return jsonify(success=False, message='You haven\'t specified the username!')
@@ -42,7 +42,7 @@ def verifyUserLoginAndLogin():
             'exp': datetime.datetime.utcnow() + cfg.app_timedeltaExpiration  # The token will expire after a day
         }
 
-        userBasePayload['api_key'] = jwt.encode(userBasePayload, cfg.app_secret)
+        userBasePayload['api_key'] = jwt.encode(userBasePayload, cfg.app_secret).decode()
         # The user has logged in successfully
         session['user'] = userBasePayload
         return jsonify(success=True, user=userBasePayload)

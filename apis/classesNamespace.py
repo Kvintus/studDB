@@ -25,6 +25,10 @@ idOnlyParserJson = classes_api.model('DeleteEntry', {
     'id': fields.Integer(default=1, required=True)
 })
 
+# Setting up "First" parser
+firstNArg = reqparse.RequestParser()
+firstNArg.add_argument('first', type=int, required=False, location="args")
+
 newClass = classes_api.model('NewClass',
                              {
                                  'letter': fields.String(default='A', required=True),
@@ -45,6 +49,7 @@ updateClass = classes_api.model('UpdateClass',
 
 @classes_api.route('/all')
 class AllClasses(Resource):
+    @classes_api.expect(firstNArg)
     def get(self):
         """ Returns all classes in the database """
 
@@ -52,12 +57,15 @@ class AllClasses(Resource):
             orderByArg = request.args.get('orderBy')
             orderedStudents = []
             mainResponse = []
-            allClasses = Class.query.all()
+            firstN = None
+
+            if 'first' in request.args:
+                firstN = int(request.args['first'])
 
             if orderByArg == "id" or not orderByArg:
-                orderedClasses = Class.query.order_by(Class.classID).all()
+                orderedClasses = Class.query.order_by(Class.classID).limit(firstN).all()
             elif orderByArg == "start":
-                orderedClasses = Class.query.order_by(Class.classStart).all()
+                orderedClasses = Class.query.order_by(Class.classStart).limit(firstN).all()
 
             for Classe in orderedClasses:
                 ourResponse = {'id': Classe.classID,
@@ -75,7 +83,7 @@ class AllClasses(Resource):
             return jsonify(success=True, classes=mainResponse)
 
 
-@classes_api.route('/')
+@classes_api.route('')
 class OneClass(Resource):
 
     @classes_api.expect(idOnlyParser)

@@ -24,6 +24,10 @@ idOnlyParserJson = professors_api.model('DeleteEntry', {
     'id': fields.Integer(default=1, required=True)
 })
 
+# Setting up "First" parser
+firstNArg = reqparse.RequestParser()
+firstNArg.add_argument('first', type=int, required=False, location="args")
+
 # Defining a newProfessor model
 newProfessor = professors_api.model('NewProfessor', {
     'name': fields.String(default="John", required=True),
@@ -50,17 +54,22 @@ updateProfessor = professors_api.model('UpdateProfessor', {
 
 @professors_api.route('/all')
 class AllProfessors(Resource):
+    @professors_api.expect(firstNArg)
     def get(self):
         orderByArg = request.args.get('orderBy')
         orderedParents = []
         mainResponse = []
+        firstN = None
+
+        if 'first' in request.args:
+            firstN = int(request.args['first'])
 
         if orderByArg == "id" or not orderByArg:
-            orderedProfessors = Professor.query.order_by(Professor.profID).all()
+            orderedProfessors = Professor.query.order_by(Professor.profID).limit(firstN).all()
         elif orderByArg == "name":
-            orderedProfessors = Professor.query.order_by(Professor.profName).all()
+            orderedProfessors = Professor.query.order_by(Professor.profName).limit(firstN).all()
         elif orderByArg == "surname":
-            orderedProfessors = Professor.query.order_by(Professor.profSurname).all()
+            orderedProfessors = Professor.query.order_by(Professor.profSurname).limit(firstN).all()
 
         for professor in orderedProfessors:
             profR = {'id': professor.profID,
@@ -80,7 +89,7 @@ class AllProfessors(Resource):
         return jsonify(success=True, professors=mainResponse)
 
 
-@professors_api.route('/')
+@professors_api.route('')
 class OneProfessor(Resource):
     """ Professor namespace """
 
