@@ -116,7 +116,7 @@ class oneParent(Resource):
 
             statusResponse = 1
 
-        return jsonify(succcess=True, parent=returnParent)
+        return jsonify(success=True, parent=returnParent)
 
     @parents_api.expect(newParent)
     @parents_api.doc(security='apikey')
@@ -125,7 +125,7 @@ class oneParent(Resource):
         """ Adds a parent to a database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to create parents")
+            return jsonify(success=False, message="You don't have privilege to create parents")
 
         try:
             parent = Parent()
@@ -144,11 +144,11 @@ class oneParent(Resource):
                     parent.children.append(child)
                     print(parent.children[0].studentID)  # Quick fix, without this it doesn't work !!!
                 except:
-                    return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(childID))
+                    return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(childID))
 
             db.session.add(parent)
             db.session.commit()
-            return jsonify(succcess=True, parentID=parent.parentID)
+            return jsonify(success=True, parentID=parent.parentID)
         except:
             return jsonify(success=False)
 
@@ -159,7 +159,7 @@ class oneParent(Resource):
         """ Removes a parent from a database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to delete parents")
+            return jsonify(success=False, message="You don't have privilege to delete parents")
 
         try:
             reJson = request.get_json()
@@ -170,7 +170,7 @@ class oneParent(Resource):
             db.session.commit()
             db.session.delete(parent)
             db.session.commit()
-            return jsonify(succcess=True)
+            return jsonify(success=True)
         except:
             return jsonify(success=False)
 
@@ -181,7 +181,7 @@ class oneParent(Resource):
         """ Updates a parent in the database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to update parents")
+            return jsonify(success=False, message="You don't have privilege to update parents")
 
         try:
             reJson = request.get_json()
@@ -190,7 +190,7 @@ class oneParent(Resource):
             try:
                 parent = Parent.query.filter_by(parentID=int(reJson['id'])).first()
             except:
-                return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(reJson['id']))
+                return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(reJson['id']))
 
             # Update
             if 'email' in reJson:
@@ -217,7 +217,7 @@ class oneParent(Resource):
                     print(parent.children[0].studentID)  # Quick fix, without this it doesn't work !!!
                 except:
                     raise
-                    return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(childID))
+                    return jsonify(success=False, message="There is no student with the ID {} in the database.".format(childID))
 
             db.session.commit()
             return jsonify(success=True, parentName="{} {}".format(parent.parentName, parent.parentSurname))
