@@ -82,7 +82,6 @@ class AllParents(Resource):
                                  'phone': parent.parentPhone
                                  })
 
-
         return jsonify(success=True, parents=mainResponse)
 
 
@@ -100,7 +99,7 @@ class oneParent(Resource):
 
             parent = Parent.query.filter_by(parentID=parentID).first()
             if parent == None:
-                return jsonify(succcess=False, message='There is no such parent in the database')
+                return jsonify(success=False, message='There is no such parent in the database')
 
             returnParent = {'id': int(parent.parentID),
                             'name': parent.parentName,
