@@ -9,7 +9,7 @@ import cfg
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app=app, supports_credentials=True)
 app.config['SECRET_KEY'] = cfg.app_secret
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///assets/database.db'
 
