@@ -30,7 +30,7 @@ firstNArg.add_argument('first', type=int, required=False, location="args")
 
 # Class schema to use a a nested element
 
-classSchema = students_api.model = ('classSchema', {
+classSchema = students_api.model = ('ClassSchema', {
     'id': fields.Integer(default=1, description="ID of the student's class"),
 })
 
@@ -44,7 +44,7 @@ newStudent = students_api.model('NewStudent', {
     'class': fields.Nested(classSchema),
     'adress': fields.String(default="Students Adress 16 NY", required=True),
     'phone': fields.String(default="+421 999 999 999", required=True),
-    'parents': fields.List(fields.Integer, default=[1, 2], description="IDs of the parrents")
+    'parents': fields.List(fields.Integer(), default=[1, 2], description="IDs of the parrents")
 })
 
 # Defining an update model
