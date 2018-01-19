@@ -28,6 +28,12 @@ idOnlyParserJson = students_api.model('DeleteEntry', {
 firstNArg = reqparse.RequestParser()
 firstNArg.add_argument('first', type=int, required=False, location="args")
 
+# Class schema to use a a nested element
+
+classSchema = students_api.model = ('classSchema', {
+    'id': fields.Integer(default=1, description="ID of the student's class"),
+})
+
 # Defining a newstudent model
 newStudent = students_api.model('NewStudent', {
     'name': fields.String(default="John", required=True),
@@ -35,7 +41,7 @@ newStudent = students_api.model('NewStudent', {
     'birth': fields.String(default="1.1.2000", required=True),
     'email': fields.String(default="students@mail.com", required=True),
     'start': fields.Integer(default=date.today().year, required=True),
-    'classID': fields.Integer(default=1, description="ID of the student's class"),
+    'class': fields.Nested(classSchema),
     'adress': fields.String(default="Students Adress 16 NY", required=True),
     'phone': fields.String(default="+421 999 999 999", required=True),
     'parents': fields.List(fields.Integer, default=[1, 2], description="IDs of the parrents")
@@ -49,7 +55,7 @@ updateStudent = students_api.model('UpdateStudent', {
     'birth': fields.String(default="1.1.2000", required=False),
     'email': fields.String(default="students@mail.com", required=False),
     'start': fields.Integer(default=date.today().year, required=False),
-    'classID': fields.Integer(default=1, description="ID of the student's class"),
+    'class': fields.Nested(classSchema),
     'adress': fields.String(default="Students Adress 16 NY", required=False),
     'phone': fields.String(default="+421 999 999 999", required=False),
     'parents': fields.List(fields.Integer, default=[1, 2], description="IDs of the parrents")
@@ -173,15 +179,15 @@ class Student(Resource):
                     return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
             # Assigning the student a class
-            if reJson['classID'] != None:
+            if reJson['class']['id'] != None:
                 try:
-                    newClass = Class.query.filter_by(classID=reJson['classID']).first()
+                    newClass = Class.query.filter_by(classID=reJson['class']['id']).first()
                     if newClass is not None:
                         student.classes.append(newClass)
                     else:
-                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['class']['id']))
                 except:
-                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['class']['id']))
 
             db.session.add(student)
             db.session.commit()
@@ -264,23 +270,23 @@ class Student(Resource):
                     return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
             # Assigning the student a class
-            if 'classID' in reJson:
+            if 'class' in reJson and 'id' in reJson['class']:
 
                 # First remove all the classes
                 deleteAllClasses(student)
 
-                if reJson['classID'] != remove or reJson['classID'] != '':
+                if reJson['class']['id'] != '':
                     try:
                         for classs in student.classes:
                             student.classes.remove(classs)
 
-                        newClass = Class.query.filter_by(classID=reJson['classID']).first()
+                        newClass = Class.query.filter_by(classID=reJson['class']['id']).first()
                         if newClass is not None:
                             student.classes.append(newClass)
                         else:
-                            return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                            return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['class']['id']))
                     except:
-                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['class']['id']))
 
             db.session.commit()
             return jsonify(success=True, id=reJson['id'], studentName="{} {}".format(student.studentName, student.studentSurname))
