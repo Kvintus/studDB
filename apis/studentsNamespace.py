@@ -1,7 +1,6 @@
 # Normal imports
 from flask import request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
-from marshmallow import Schema
 from datetime import date
 from .helpers import *
 import os
