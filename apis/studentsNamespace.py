@@ -1,6 +1,7 @@
 # Normal imports
 from flask import request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
+from marshmallow import Schema
 from datetime import date
 from .helpers import *
 import os
@@ -29,10 +30,10 @@ firstNArg = reqparse.RequestParser()
 firstNArg.add_argument('first', type=int, required=False, location="args")
 
 # Class schema to use a a nested element
-
-classSchema = students_api.model = ('ClassSchema', {
-    'id': fields.Integer(default=1, description="ID of the student's class"),
+classSchema = students_api.model('ClassSchema', {
+    'id': fields.Integer(default=1),
 })
+
 
 # Defining a newstudent model
 newStudent = students_api.model('NewStudent', {
@@ -41,7 +42,7 @@ newStudent = students_api.model('NewStudent', {
     'birth': fields.String(default="1.1.2000", required=True),
     'email': fields.String(default="students@mail.com", required=True),
     'start': fields.Integer(default=date.today().year, required=True),
-    'class': fields.Nested(classSchema, many=True),
+    'class': fields.Nested(students_api.models['ClassSchema']),
     'adress': fields.String(default="Students Adress 16 NY", required=True),
     'phone': fields.String(default="+421 999 999 999", required=True),
     'parents': fields.List(fields.Integer, description="IDs of the parrents"),
@@ -55,7 +56,7 @@ updateStudent = students_api.model('UpdateStudent', {
     'birth': fields.String(default="1.1.2000", required=False),
     'email': fields.String(default="students@mail.com", required=False),
     'start': fields.Integer(default=date.today().year, required=False),
-    'class': fields.Nested(classSchema, many=True),
+    'class': fields.Nested(students_api.models['ClassSchema']),
     'adress': fields.String(default="Students Adress 16 NY", required=False),
     'phone': fields.String(default="+421 999 999 999", required=False),
     'parents': fields.List(fields.Integer(), description="IDs of the parrents"),
