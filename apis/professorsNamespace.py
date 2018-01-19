@@ -138,7 +138,7 @@ class OneProfessor(Resource):
         """ Adds a professor to a database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to create professors")
+            return jsonify(success=False, message="You don't have privilege to create professors")
 
         try:
             professor = Professor()
@@ -165,7 +165,7 @@ class OneProfessor(Resource):
 
             db.session.add(professor)
             db.session.commit()
-            return jsonify(succcess=True, professorID=professor.profID)
+            return jsonify(success=True, professorID=professor.profID)
         except:
             return jsonify(success=False)
 
@@ -176,7 +176,7 @@ class OneProfessor(Resource):
         """ Removes a professor from a database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to delete professors")
+            return jsonify(success=False, message="You don't have privilege to delete professors")
 
         try:
             reJson = request.get_json()
@@ -187,7 +187,7 @@ class OneProfessor(Resource):
             db.session.commit()
             db.session.delete(professor)
             db.session.commit()
-            return jsonify(succcess=True)
+            return jsonify(success=True)
         except:
             raise
             return jsonify(success=False, message="There is no professor with the ID {} in the database.".format(reJson['id']))
@@ -199,7 +199,7 @@ class OneProfessor(Resource):
         """ Updates a professor in the database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to update professors")
+            return jsonify(success=False, message="You don't have privilege to update professors")
 
         try:
             reJson = request.get_json()
@@ -235,6 +235,6 @@ class OneProfessor(Resource):
                     return jsonify(success=False, message="There is no class with the ID {} in the database.".format(classID))
 
             db.session.commit()
-            return jsonify(succcess=True, professorID=professor.profID)
+            return jsonify(success=True, professorID=professor.profID)
         except:
             return jsonify(success=False, message='Fail')

@@ -1,6 +1,7 @@
 # Normal imports
 from flask import request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
+from marshmallow import Schema
 from datetime import date
 from .helpers import *
 import os
@@ -28,6 +29,12 @@ idOnlyParserJson = students_api.model('DeleteEntry', {
 firstNArg = reqparse.RequestParser()
 firstNArg.add_argument('first', type=int, required=False, location="args")
 
+# Class schema to use a a nested element
+classSchema = students_api.model('ClassSchema', {
+    'id': fields.Integer(default=1),
+})
+
+
 # Defining a newstudent model
 newStudent = students_api.model('NewStudent', {
     'name': fields.String(default="John", required=True),
@@ -35,10 +42,10 @@ newStudent = students_api.model('NewStudent', {
     'birth': fields.String(default="1.1.2000", required=True),
     'email': fields.String(default="students@mail.com", required=True),
     'start': fields.Integer(default=date.today().year, required=True),
-    'classID': fields.Integer(default=1, description="ID of the student's class"),
+    'class': fields.Nested(students_api.models['ClassSchema']),
     'adress': fields.String(default="Students Adress 16 NY", required=True),
     'phone': fields.String(default="+421 999 999 999", required=True),
-    'parents': fields.List(fields.Integer, default=[1, 2], description="IDs of the parrents")
+    'parents': fields.List(fields.Integer, description="IDs of the parrents"),
 })
 
 # Defining an update model
@@ -49,10 +56,10 @@ updateStudent = students_api.model('UpdateStudent', {
     'birth': fields.String(default="1.1.2000", required=False),
     'email': fields.String(default="students@mail.com", required=False),
     'start': fields.Integer(default=date.today().year, required=False),
-    'classID': fields.Integer(default=1, description="ID of the student's class"),
+    'class': fields.Nested(students_api.models['ClassSchema']),
     'adress': fields.String(default="Students Adress 16 NY", required=False),
     'phone': fields.String(default="+421 999 999 999", required=False),
-    'parents': fields.List(fields.Integer, default=[1, 2], description="IDs of the parrents")
+    'parents': fields.List(fields.Integer(), description="IDs of the parrents"),
 })
 
 ## Helper functions ##
@@ -66,7 +73,7 @@ class AllStudents(Resource):
         orderByArg = request.args.get('orderBy')
         orderedStudents = []
         mainResponse = []
-        firstN = None 
+        firstN = None
 
         if 'first' in request.args:
             firstN = int(request.args['first'])
@@ -166,26 +173,26 @@ class Student(Resource):
                 try:
                     parent = Parent.query.filter_by(parentID=parentID).first()
                     if parent == None:
-                        return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+                        return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
                     student.parents.append(parent)
                 except:
-                    return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+                    return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
             # Assigning the student a class
-            if reJson['classID'] != None:
+            if reJson['class']['id'] != None:
                 try:
-                    newClass = Class.query.filter_by(classID=reJson['classID']).first()
+                    newClass = Class.query.filter_by(classID=reJson['class']['id']).first()
                     if newClass is not None:
                         student.classes.append(newClass)
                     else:
-                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['class']['id']))
                 except:
-                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                    return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['class']['id']))
 
             db.session.add(student)
             db.session.commit()
-            return jsonify(succcess=True, studentID=student.studentID)
+            return jsonify(success=True, studentID=student.studentID)
         except:
             return jsonify(success=False)
 
@@ -196,7 +203,7 @@ class Student(Resource):
         """ Removes a student from a database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to delete students")
+            return jsonify(success=False, message="You don't have privilege to delete students")
 
         try:
             reJson = request.get_json()
@@ -208,7 +215,7 @@ class Student(Resource):
 
                 db.session.delete(student)
                 db.session.commit()
-                return jsonify(succcess=True)
+                return jsonify(success=True)
             else:
                 return jsonify(success=False, message="The user with ID {} doesn't exist.".format(reJson['id']))
         except:
@@ -222,7 +229,7 @@ class Student(Resource):
         """ Edits a student in the database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to update students")
+            return jsonify(success=False, message="You don't have privilege to update students")
 
         try:
             reJson = request.get_json()
@@ -231,7 +238,7 @@ class Student(Resource):
             try:
                 student = Students.query.filter_by(studentID=int(reJson['id'])).first()
             except:
-                return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(reJson['id']))
+                return jsonify(success=False, message="There is no student with the ID {} in the database.".format(reJson['id']))
 
             # Update
             if 'email' in reJson:
@@ -257,30 +264,30 @@ class Student(Resource):
                     parent = Parent.query.filter_by(parentID=parentID).first()
 
                     if parent == None:
-                        return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+                        return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
                     student.parents.append(parent)
                 except:
-                    return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+                    return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
             # Assigning the student a class
-            if 'classID' in reJson:
+            if 'class' in reJson and 'id' in reJson['class']:
 
                 # First remove all the classes
                 deleteAllClasses(student)
 
-                if reJson['classID'] != remove or reJson['classID'] != '':
+                if reJson['class']['id'] != '':
                     try:
                         for classs in student.classes:
                             student.classes.remove(classs)
 
-                        newClass = Class.query.filter_by(classID=reJson['classID']).first()
+                        newClass = Class.query.filter_by(classID=reJson['class']['id']).first()
                         if newClass is not None:
                             student.classes.append(newClass)
                         else:
-                            return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                            return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['class']['id']))
                     except:
-                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['classID']))
+                        return jsonify(success=False, message="There is no class with the ID {} in the database.".format(reJson['class']['id']))
 
             db.session.commit()
             return jsonify(success=True, id=reJson['id'], studentName="{} {}".format(student.studentName, student.studentSurname))
