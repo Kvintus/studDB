@@ -96,7 +96,7 @@ class OneClass(Resource):
             ourClass = Class.query.filter_by(classID=classID).first()
 
             if ourClass is None:
-                return jsonify(succcess=False, message='There is no such class in the database')
+                return jsonify(success=False, message='There is no such class in the database')
 
             returnClass = {'id': int(ourClass.classID),
                            'letter': ourClass.classLetter,
@@ -130,7 +130,7 @@ class OneClass(Resource):
         """ Adds a class to a database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to create classes")
+            return jsonify(success=False, message="You don't have privilege to create classes")
 
         try:
             reJson = request.get_json()
@@ -146,9 +146,9 @@ class OneClass(Resource):
                     if pupil != None:
                         newClass.pupils.append(pupil)
                     else:
-                        return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
+                        return jsonify(success=False, message="There is no student with the ID {} in the database.".format(pupilID))
                 except:
-                    return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
+                    return jsonify(success=False, message="There is no student with the ID {} in the database.".format(pupilID))
 
             # Adding his parents
             for professorID in reJson['professors']:
@@ -157,13 +157,13 @@ class OneClass(Resource):
                     if professor is not None:
                         newClass.profs.append(professor)
                     else:
-                        return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(professorID))
+                        return jsonify(success=False, message="There is no professor with the ID {} in the database.".format(professorID))
                 except:
-                    return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(parentID))
+                    return jsonify(success=False, message="There is no professor with the ID {} in the database.".format(parentID))
 
             db.session.add(newClass)
             db.session.commit()
-            return jsonify(succcess=True, classID=newClass.classID)
+            return jsonify(success=True, classID=newClass.classID)
         except:
             return jsonify(success=False, message='Not enought information provided')
 
@@ -174,7 +174,7 @@ class OneClass(Resource):
         """ Removes a class from a database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to delete classes")
+            return jsonify(success=False, message="You don't have privilege to delete classes")
 
         try:
             reJson = request.get_json()
@@ -185,7 +185,7 @@ class OneClass(Resource):
 
             db.session.delete(ourClass)
             db.session.commit()
-            return jsonify(succcess=True)
+            return jsonify(success=True)
         except:
             raise
             return jsonify(success=False, message="Failed deleting")
@@ -197,7 +197,7 @@ class OneClass(Resource):
         """ Updates a class """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to update classes")
+            return jsonify(success=False, message="You don't have privilege to update classes")
 
         try:
             reJson = request.get_json()
@@ -220,9 +220,9 @@ class OneClass(Resource):
                     if professor is not None:
                         ourClass.profs.append(professor)
                     else:
-                        return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(professorID))
+                        return jsonify(success=False, message="There is no professor with the ID {} in the database.".format(professorID))
                 except:
-                    return jsonify(succcess=False, message="There is no professor with the ID {} in the database.".format(parentID))
+                    return jsonify(success=False, message="There is no professor with the ID {} in the database.".format(parentID))
 
             deleteAllPupils(ourClass)
             for pupilID in reJson['pupils']:
@@ -231,9 +231,9 @@ class OneClass(Resource):
                     ourClass.pupils.append(pupil)
                     print(ourClass.pupils[0].studentID)  # Quick fix, without this it doesn't work !!!
                 except:
-                    return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(pupilID))
+                    return jsonify(success=False, message="There is no student with the ID {} in the database.".format(pupilID))
 
             db.session.commit()
-            return jsonify(succcess=True)
+            return jsonify(success=True)
         except:
             return jsonify(success=False, message='fail')

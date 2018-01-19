@@ -66,7 +66,7 @@ class AllStudents(Resource):
         orderByArg = request.args.get('orderBy')
         orderedStudents = []
         mainResponse = []
-        firstN = None 
+        firstN = None
 
         if 'first' in request.args:
             firstN = int(request.args['first'])
@@ -166,11 +166,11 @@ class Student(Resource):
                 try:
                     parent = Parent.query.filter_by(parentID=parentID).first()
                     if parent == None:
-                        return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+                        return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
                     student.parents.append(parent)
                 except:
-                    return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+                    return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
             # Assigning the student a class
             if reJson['classID'] != None:
@@ -185,7 +185,7 @@ class Student(Resource):
 
             db.session.add(student)
             db.session.commit()
-            return jsonify(succcess=True, studentID=student.studentID)
+            return jsonify(success=True, studentID=student.studentID)
         except:
             return jsonify(success=False)
 
@@ -196,7 +196,7 @@ class Student(Resource):
         """ Removes a student from a database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to delete students")
+            return jsonify(success=False, message="You don't have privilege to delete students")
 
         try:
             reJson = request.get_json()
@@ -208,7 +208,7 @@ class Student(Resource):
 
                 db.session.delete(student)
                 db.session.commit()
-                return jsonify(succcess=True)
+                return jsonify(success=True)
             else:
                 return jsonify(success=False, message="The user with ID {} doesn't exist.".format(reJson['id']))
         except:
@@ -222,7 +222,7 @@ class Student(Resource):
         """ Edits a student in the database """
 
         if tokenData['privilege'] < 3:
-            return jsonify(succcess=False, message="You don't have privilege to update students")
+            return jsonify(success=False, message="You don't have privilege to update students")
 
         try:
             reJson = request.get_json()
@@ -231,7 +231,7 @@ class Student(Resource):
             try:
                 student = Students.query.filter_by(studentID=int(reJson['id'])).first()
             except:
-                return jsonify(succcess=False, message="There is no student with the ID {} in the database.".format(reJson['id']))
+                return jsonify(success=False, message="There is no student with the ID {} in the database.".format(reJson['id']))
 
             # Update
             if 'email' in reJson:
@@ -257,11 +257,11 @@ class Student(Resource):
                     parent = Parent.query.filter_by(parentID=parentID).first()
 
                     if parent == None:
-                        return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+                        return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
                     student.parents.append(parent)
                 except:
-                    return jsonify(succcess=False, message="There is no parent with the ID {} in the database.".format(parentID))
+                    return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
             # Assigning the student a class
             if 'classID' in reJson:
