@@ -44,7 +44,7 @@ newStudent = students_api.model('NewStudent', {
     'class': fields.Nested(classSchema),
     'adress': fields.String(default="Students Adress 16 NY", required=True),
     'phone': fields.String(default="+421 999 999 999", required=True),
-    'parents': fields.List(fields.Integer(), default=[1, 2], description="IDs of the parrents")
+    'parents': fields.List(fields.Integer(), description="IDs of the parrents")
 })
 
 # Defining an update model
@@ -58,7 +58,7 @@ updateStudent = students_api.model('UpdateStudent', {
     'class': fields.Nested(classSchema),
     'adress': fields.String(default="Students Adress 16 NY", required=False),
     'phone': fields.String(default="+421 999 999 999", required=False),
-    'parents': fields.List(fields.Integer, default=[1, 2], description="IDs of the parrents")
+    'parents': fields.List(fields.Integer(), description="IDs of the parrents")
 })
 
 ## Helper functions ##
