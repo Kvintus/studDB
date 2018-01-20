@@ -97,7 +97,6 @@ class OneProfessor(Resource):
     def get(self):
         """ Returns a specific professor """
         profID = request.args.get('id')
-        statusResponse = -1
         returnProfessor = {}
 
         try:
@@ -125,11 +124,9 @@ class OneProfessor(Resource):
 
                 returnProfessor['classes'].append(ourClass)
 
-            statusResponse = 1
+            return jsonify(success=True, professor=returnProfessor)
         except:
-            statusResponse = -1
-
-        return jsonify(status=statusResponse, professor=returnProfessor)
+            return jsonify(success=False, message="There is no professor with the ID {} in the database.".format(profID))
 
     @professors_api.expect(newProfessor)
     @professors_api.doc(security='apikey')
