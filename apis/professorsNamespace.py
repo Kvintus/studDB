@@ -217,6 +217,8 @@ class OneProfessor(Resource):
                 professor.profAdress = reJson['adress']
             if 'title' in reJson:
                 professor.profTitle = reJson['title']
+            if 'loc' in reJson:
+                professor.profLoc = reJson['loc']
 
             # Assigning the professor a class
             deleteAllClasses(professor)
