@@ -141,13 +141,19 @@ class OneProfessor(Resource):
             professor = Professor()
             reJson = request.get_json()
 
-            professor.profEmail = reJson['email']
-            professor.profTitle = reJson['title']
             professor.profName = reJson['name']
-            professor.profLoc = reJson['loc']
-            professor.profPhone = reJson['phone']
             professor.profSurname = reJson['surname']
-            professor.profAdress = reJson['adress']
+            professor.profEmail = reJson['email']
+            professor.profPhone = reJson['phone']
+            
+            
+            # Optional
+            if 'title' in reJson:
+                professor.profTitle = reJson['title']
+            if 'loc' in reJson:
+                professor.profLoc = reJson['loc']
+            if 'adress' in reJson:
+                professor.profAdress = reJson['adress']
 
             for classID in reJson['classes']:
                 try:
