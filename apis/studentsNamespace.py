@@ -1,7 +1,6 @@
 # Normal imports
 from flask import request, jsonify
 from flask_restplus import Api, Namespace, fields, Resource, reqparse
-from marshmallow import Schema
 from datetime import date
 from .helpers import *
 import os
@@ -160,13 +159,17 @@ class Student(Resource):
         try:
             student = Students()
             reJson = request.get_json()
-            student.studentEmail = reJson['email']
             student.studentName = reJson['name']
-            student.studentPhone = reJson['phone']
             student.studentSurname = reJson['surname']
             student.studentStart = reJson['start']
-            student.studentAdress = reJson['adress']
             student.studentDateOfBirth = reJson['birth']
+
+            if 'email' in reJson:
+                student.studentEmail = reJson['email']
+            if 'phone' in reJson:
+                student.studentPhone = reJson['phone']
+            if 'adress' in reJson:
+                student.studentAdress = reJson['adress']
 
             # Adding his parents
             for parentID in reJson['parents']:
@@ -180,7 +183,7 @@ class Student(Resource):
                     return jsonify(success=False, message="There is no parent with the ID {} in the database.".format(parentID))
 
             # Assigning the student a class
-            if reJson['class']['id'] != None:
+            if reJson['class']['id'] != None and reJson['class']['id'] != '':
                 try:
                     newClass = Class.query.filter_by(classID=reJson['class']['id']).first()
                     if newClass is not None:

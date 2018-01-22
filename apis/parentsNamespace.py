@@ -135,7 +135,9 @@ class oneParent(Resource):
             parent.parentName = reJson['name']
             parent.parentPhone = reJson['phone']
             parent.parentSurname = reJson['surname']
-            parent.parentAdress = reJson['adress']
+
+            if 'adress' in reJson:
+                parent.parentAdress = reJson['adress']
 
             # Adding his parents
             for childID in reJson['children']:
