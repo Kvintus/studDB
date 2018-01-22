@@ -1,0 +1,315 @@
+.manipulate-buttons-con {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.manipulate-buttons-con button {
+  margin-right: 12px;
+}
+
+#cancel-button-wrapper {
+  margin-right: auto;
+}
+
+#cancel-button-wrapper button {
+  margin-left: 12px;
+}
+
+.delete {
+  padding-left: 12px;
+  color: #ff6767;
+}
+
+.delete:hover {
+  color: #f84242;
+  cursor: pointer;
+}
+
+#addParentDiv {
+  padding-left: 0px;
+  padding-right: 0px;
+  display: flex;
+  align-items: center;
+}
+
+#addParentDiv input {
+  width: 160px;
+}
+
+.card-heading {
+  margin-left: 50px;
+  font-size: 50px;
+  font-family: sans-serif;
+  color: #cccccc;
+  margin-bottom: 12px;
+}
+
+.vs-main-con {
+  margin-top: 100px;
+  width: 60%;
+  min-width: 367px;
+  max-width: 865px;
+  padding: 20px;
+  background-color: rgba(255, 252, 252, 0.1);
+  box-shadow: 0px 1px 12px 2px rgba(140, 140, 140, 0.75);
+  -webkit-box-shadow: 0px 1px 12px 2px rgba(140, 140, 140, 0.75);
+  -moz-box-shadow: 0px 1px 12px 2px rgba(140, 140, 140, 0.75);
+}
+
+@media screen and (max-width: 600px) {
+  .vs-main-con {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 906px) {
+  .vs-main-con {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    min-width: 0px;
+  }
+}
+
+.vs-main-con input {
+  margin-left: 0px;
+}
+
+.vs-main-con hr {
+  margin-bottom: 1.7rem;
+}
+
+.prof-image-con {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.prof-image-con img {
+  border-radius: 50%;
+  width: 230px;
+}
+
+.vs-table-info {
+  color: gray;
+}
+
+.vs-gray-info {
+  color: #b1b1b1;
+}
+
+#vs-info-wrap {
+  text-align: right;
+}
+
+@media screen and (max-width: 875px) {
+  .main-parent-con {
+    margin-top: 32px;
+  }
+}
+
+.vs-text-con {
+  font-size: 22px;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.vs-text-con .col-sm-10 {
+  padding-left: 0px;
+}
+
+.view-rel-headline {
+  display: inline-block;
+  color: gray;
+  font-size: 26px;
+  margin-bottom: 15px;
+}
+
+.custom-button {
+  margin-bottom: 0px;
+  display: inline-block;
+  color: #5a5a5a;
+  padding: 6px;
+  width: 160px;
+  background-color: #f5f5f5;
+  border: 1px solid gray;
+  border-radius: 5px;
+  transition: 200ms ease;
+}
+
+.custom-button:hover {
+  text-decoration: none;
+  color: #5a5a5a;
+  background-color: #eaeaea;
+}
+
+.manipulate-buttons-con {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.manipulate-buttons-con button {
+  margin-right: 12px;
+}
+
+.class-ref {
+  margin-bottom: 1rem;
+  display: block;
+  color: #b1b1b1;
+  font-weight: 500;
+  transition: 200ms ease;
+}
+
+.class-ref:hover {
+  text-decoration: none;
+  color: #808080;
+}
+
+.relative-ref {
+  display: inline-block;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.parents-con {
+  margin-left: 20px;
+}
+
+#add-parent-button {
+  margin-left: 20px;
+  margin-bottom: 0px;
+  color: gray;
+  display: inline-block;
+  font-size: 20px;
+  transition: 200ms ease;
+}
+
+#add-parent-button:hover {
+  color: #525252;
+}
+
+.card-heading {
+  margin-left: 50px;
+  font-size: 50px;
+  font-family: sans-serif;
+  color: #cccccc;
+  margin-bottom: 12px;
+}
+
+.vs-main-con {
+  width: 60%;
+  min-width: 367px;
+  max-width: 865px;
+  padding: 20px;
+  background-color: rgba(255, 252, 252, 0.1);
+  box-shadow: 0px 1px 12px 2px rgba(140, 140, 140, 0.75);
+  -webkit-box-shadow: 0px 1px 12px 2px rgba(140, 140, 140, 0.75);
+  -moz-box-shadow: 0px 1px 12px 2px rgba(140, 140, 140, 0.75);
+}
+
+@media screen and (max-width: 600px) {
+  .vs-main-con {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 906px) {
+  .vs-main-con {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    min-width: 0px;
+  }
+}
+
+.vs-main-con hr {
+  margin-bottom: 1.7rem;
+}
+
+.prof-image-con {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.prof-image-con img {
+  border-radius: 50%;
+  width: 230px;
+}
+
+.vs-table-info {
+  color: gray;
+}
+
+.vs-gray-info {
+  color: #b1b1b1;
+}
+
+#vs-info-wrap {
+  text-align: right;
+}
+
+@media screen and (max-width: 875px) {
+  .main-parent-con {
+    margin-top: 32px;
+  }
+}
+
+.vs-text-con {
+  font-size: 22px;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.view-rel-headline {
+  display: inline-block;
+  color: gray;
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+
+.custom-button {
+  display: inline-block;
+  color: #5a5a5a;
+  padding: 6px;
+  width: 160px;
+  background-color: #f5f5f5;
+  border: 1px solid gray;
+  border-radius: 5px;
+  transition: 200ms ease;
+}
+
+.custom-button:hover {
+  text-decoration: none;
+  color: #5a5a5a;
+  background-color: #eaeaea;
+}
+
+.manipulate-buttons-con {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.manipulate-buttons-con button {
+  margin-right: 12px;
+}
+
+.class-ref {
+  margin-bottom: 1rem;
+  display: block;
+  color: #b1b1b1;
+  font-weight: 500;
+  transition: 200ms ease;
+}
+
+.class-ref:hover {
+  text-decoration: none;
+  color: #808080;
+}
+
+.parents-con {
+  margin-left: 20px;
+}
+/*# sourceMappingURL=style.css.map */
