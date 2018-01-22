@@ -33,7 +33,9 @@ newClass = classes_api.model('NewClass',
                              {
                                  'letter': fields.String(default='A', required=True),
                                  'room': fields.String(default='P1', required=False),
-                                 'start': fields.Integer(default=2017, required=True)
+                                 'start': fields.Integer(default=2017, required=True),
+                                 'pupils': fields.List(fields.Integer, default=[1,2,3]),
+                                 'professors': fields.List(fields.Integer, default=[1]),
                              }
                              )
 
@@ -42,7 +44,9 @@ updateClass = classes_api.model('UpdateClass',
                                     'id': fields.Integer(default=1, required=True),
                                     'letter': fields.String(default='A', required=False),
                                     'room': fields.String(default='P1', required=False),
-                                    'start': fields.Integer(default=2017, required=False)
+                                    'start': fields.Integer(default=2017, required=False),
+                                    'pupils': fields.List(fields.Integer, default=[1,2,3]),
+                                    'professors': fields.List(fields.Integer, default=[1]),
                                 }
                                 )
 
